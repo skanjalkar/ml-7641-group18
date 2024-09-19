@@ -93,34 +93,41 @@
     <!-- Introduction Section -->
     <div class="section">
         <h2>Introduction/Background</h2>
-        <p>
-            <strong>[Provide an introduction of your project]</strong> — Introduce the topic and present a brief review of related work. Include a description of the dataset and its key features. If applicable, provide a link to the dataset.
-        </p>
         <ul>
             <li><strong>Literature Review</strong></li>
-            <li><strong>Dataset Description</strong></li>
-            <li><strong>Dataset Link:</strong> <a href="#" target="_blank">Link to Dataset</a></li>
+<p>
+In 2016, Acher and Esnault [1] pioneered large-scale chess game analysis using the Stockfish engine, processing millions of positions to identify patterns in human decision-making and blunder detection. This large dataset enabled the exploration of player behavior and laid the groundwork for advanced machine learning applications in chess.
+</p>
+
+<p>
+Building on these foundations, Silver et al. [2] in 2017 introduced AlphaZero, an AI that learned to play chess through self-play without human input. AlphaZero revolutionized the field by combining deep reinforcement learning with Monte Carlo Tree Search (MCTS), achieving superhuman performance across multiple board games including chess, shogi, and Go, within hours.
+</p>
+
+<p>
+In 2020, McIlroy-Young et al. [3] took a step further in modeling human-like play. Their model, Maia, was fine-tuned to predict individual player moves based on datasets of online chess games. Unlike AlphaZero, which optimized for perfect play, Maia aimed to mimic human tendencies, including mistakes and imprecisions, thus offering more relatable and educational AI for players.
+</p>
+            <li><strong>Dataset Description:</strong>A standard Lichess dataset contains chess game information such as player IDs, ratings, game results (win, loss, or draw), time control, and termination reasons (e.g., resignation or checkmate). Each game is identified by a unique ID and includes metadata like the opening name and ECO code, date and time, and the move list in algebraic notation. Some datasets may also include move timestamps, annotations for notable moves, or "optimal" engine evaluations at certain moves. Optional player metadata, such as titles (GM, IM) may also be available.</li>
+            <li><strong>Dataset Link:</strong> <a href="https://database.lichess.org/#standard_games" target="_blank">Link to Dataset</a></li>
         </ul>
     </div>
 
     <!-- Problem Definition Section -->
     <div class="section">
         <h2>Problem Definition</h2>
-        <p>
-            <strong>[Identify the core problem]</strong> — Clearly define the problem your project addresses and explain why it is important to find a solution.
-        </p>
         <ul>
-            <li><strong>Problem Statement:</strong> What is the problem you're solving?</li>
-            <li><strong>Motivation:</strong> Why does this problem need a solution?</li>
+            <li><strong>Problem Statement:</strong>Chess engines have traditionally been designed to achieve optimal play, often surpassing human ability through brute-force calculations and deep evaluations. While these engines excel in performance, they lack the nuance and variability of human play, making them feel too robotic and predictable. There is a growing need for a chess engine that can simulate human-like decision-making, which incorporates not only the optimal move but also human characteristics such as occasional mistakes, strategic depth, and style preferences.
+
+This project aims to develop a machine learning-based chess engine that mimics "human-like" moves by leveraging both supervised and unsupervised learning techniques. Using a large collection of chess games (PGNs), the model will learn to predict moves based on board states, player rating, and other factors that affect human decision-making. Additionally, it will generate new moves or entire games in a way that feels natural and reflective of human styles, including diverse strategies, cautious play, and controlled inaccuracies. This engine will cater to players seeking an engaging, lifelike opponent that mirrors human play at various skill level.</li>
+
+            <li><strong>Motivation:</strong>This problem needs a solution because, since the <a href="https://www.nytimes.com/2022/06/17/crosswords/chess/chess-is-booming.html" target="_blank">pandemic</a>, chess has experienced a massive surge in popularity, with millions of new players engaging with the game online. While traditional chess engines have advanced to superhuman levels of play, they are optimized for perfection and often make moves that are hard for average players to understand. This can be discouraging for the influx of learners and casual players who picked up chess during the pandemic, seeking to improve their skills or enjoy a more human-like playing experience.
+
+A "human-like" chess engine can address this need by simulating the decision-making processes of real players, incorporating relatable mistakes, strategic thought processes, and diverse playing styles. Such an engine would serve as an educational tool and a more relatable opponent, enhancing the learning curve for new players and providing a more engaging experience for players at all levels. Given the explosive growth of online chess since the pandemic, there is a strong demand for AI systems that don’t just play perfectly, but play in a way that humans can learn from and enjoy.</li>
         </ul>
     </div>
 
     <!-- Methods Section -->
     <div class="section">
         <h2>Methods</h2>
-        <p>
-            <strong>[Outline proposed methods]</strong> — Describe the methods and algorithms you will use to address the problem. Identify data preprocessing techniques and machine learning models, along with reasoning for their selection.
-        </p>
         <ul>
             <li><strong>Data Preprocessing Methods:</strong> (e.g. normalization, feature scaling)</li>
             <li><strong>Machine Learning Algorithms:</strong> (e.g. Random Forest, SVM)</li>
@@ -132,9 +139,6 @@
     <!-- Results Section -->
     <div class="section">
         <h2>(Potential) Results and Discussion</h2>
-        <p>
-            <strong>[Expected Outcomes]</strong> — Specify the metrics and goals you aim to achieve. Discuss any potential outcomes and results.
-        </p>
         <ul>
             <li><strong>Quantitative Metrics:</strong> (e.g. accuracy, precision, recall)</li>
             <li><strong>Project Goals:</strong> What do you hope to achieve?</li>
@@ -144,14 +148,12 @@
 
     <!-- References Section -->
     <div class="section">
-        <h2>References</h2>
-        <p>
-            <strong>[List your references]</strong> — Include citations following the IEEE format. Ensure each reference is cited in the body of the proposal.
-        </p>
-        <ul>
-            <li><strong>3+ References</strong></li>
-            <li><strong>1+ In-text Citations Per Reference</strong></li>
-        </ul>
+        <h2>References</h2> 
+        <ol>
+          <li>Acher, Mathieu, and Gilles Esnault. "Large-scale Analysis of Chess Games with Chess Engines: A Preliminary Report." arXiv preprint arXiv:1607.04186 (2016).</li>
+          <li>Silver, David, et al. "Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm." arXiv preprint arXiv:1712.01815 (2017).</li>
+          <li>McIlroy-Young, Reid, et al. "Learning Models of Individual Behavior in Chess." arXiv preprint arXiv:2008.10086 (2020).</li>
+        </ol>
     </div>
 
     <!-- Gantt Chart Section -->
@@ -166,9 +168,6 @@
     <!-- Contribution Table Section -->
     <div class="section">
         <h2>Contribution Table</h2>
-        <p>
-            <strong>[List contributions of each group member]</strong> — Outline contributions clearly using the format below.
-        </p>
         <table>
             <thead>
                 <tr>
@@ -205,9 +204,6 @@
     <div class="section">
         <h2>Video Presentation</h2>
         <p>
-            <strong>[Add your presentation video]</strong> — Create a 3-minute YouTube video summarizing your proposal. Use an Unlisted link.
-        </p>
-        <p>
             Watch the proposal video here: <a href="https://youtu.be/YOUR_VIDEO_LINK" target="_blank">Proposal Video</a> 
         </p>
     </div>
@@ -215,9 +211,6 @@
     <!-- GitHub Repository Section -->
     <div class="section">
         <h2>GitHub Repository</h2>
-        <p>
-            <strong>[Link to your project repository]</strong> — You can share the link to your private GitHub repository.
-        </p>
         <p>
             Repository: <a href="https://github.com/skanjalkar/ml-7641-group18" target="_blank">GitHub Repo Link</a>
         </p>
