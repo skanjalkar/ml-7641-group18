@@ -130,10 +130,22 @@ A "human-like" chess engine can address this need by simulating the decision-mak
     <div class="section">
         <h2>Methods</h2>
         <ul>
-            <li><strong>Data Preprocessing Methods:</strong> (e.g. normalization, feature scaling)</li>
-            <li><strong>Machine Learning Algorithms:</strong> (e.g. Random Forest, SVM)</li>
-            <li><strong>CS 7641 Methods:</strong> Supervised and Unsupervised learning methods identified.</li>
-            <li><strong>CS 4641 Methods:</strong> Supervised/Unsupervised methods (recommended).</li>
+            <li><strong>Data Preprocessing Methods:</strong>
+                Our dataset is in PGN format, which encodes the moves of a chess game as a sequence of strings. Since we aim to predict human-like moves at specific positions, thorough data preprocessing is essential.
+                <ul>
+                    <li>Extracting Positional Features: Chess requires strong spatial reasoning, as players often visualize the board as a 2D image. To provide models with this spatial context, we simulate the game up to the desired position and represent it as an 8x8 grid, where each square contains information about the piece occupying it. This technique is inspired by approaches like AlphaGo. For this, we will use the python-chess library, which supports PGN parsing and board rendering. </li>
+                    <li>Eliminating Non-representative Positions: Chess involves both memorization and strategic thinking. Positions where moves are driven by memorized patterns (like early-game openings) or time constraints (when players have less than 10 seconds on the clock) don’t reflect true human reasoning. To improve the quality of our data, we will exclude these positions using the pandas.DataFrame.drop function. </li>
+                    <li>Upsampling:  Certain moves, like promoting a pawn to a bishop, are far less common than more standard ones, like promoting to a queen. To balance the dataset and ensure even representation of all move types, we will oversample the rarer moves. The sklearn.utils.resample function will assist in this process. </li>
+                </ul>
+
+            </li>
+            <li><strong>Machine Learning Algorithms:</strong> 
+                We will use ML algorithms to predict the next human-like move in a chess game.
+                <ul>
+                    <li> VAE (Unsupervised): Traditional ML methods struggle with spatial data like images, so we need a way to convert chess positions into dense representations. We’ll use a Variational Autoencoder (VAE), an encoder-decoder model that learns to reconstruct inputs from compressed latent representations. Since VAEs don't require labeled data, we’ll train it exclusively on chess positions and use the encoder to generate dense features for each position. </li>
+                    <li>Random Forest (Supervised): Random Forest is a fast and efficient ML algorithm for classification. Since we have a large dataset, this is a natural choice for classical ML algorithm. We will train a random forest classifier to predict next human moves.</li>
+                    <li>MLP (Supervised): A Multi-Layer Perceptron (MLP) is a deep learning model capable of capturing complex patterns in data. Given the success of deep learning in various tasks, we will employ MLP to predict human-like chess moves. </li>
+            </li>
         </ul>
     </div>
 
