@@ -133,9 +133,9 @@ A "human-like" chess engine can address this need by simulating the decision-mak
             <li><strong>Data Preprocessing Methods:</strong>
                 Our dataset is in PGN format, which encodes the moves of a chess game as a sequence of strings. Since we aim to predict human-like moves at specific positions, thorough data preprocessing is essential.
                 <ul>
-                    <li>Extracting Positional Features: Chess requires strong spatial reasoning, as players often visualize the board as a 2D image. To provide models with this spatial context, we simulate the game up to the desired position and represent it as an 8x8 grid, where each square contains information about the piece occupying it. This technique is inspired by approaches like AlphaGo. For this, we will use the python-chess library, which supports PGN parsing and board rendering. </li>
-                    <li>Eliminating Non-representative Positions: Chess involves both memorization and strategic thinking. Positions where moves are driven by memorized patterns (like early-game openings) or time constraints (when players have less than 10 seconds on the clock) don’t reflect true human reasoning. To improve the quality of our data, we will exclude these positions using the pandas.DataFrame.drop function. </li>
-                    <li>Upsampling:  Certain moves, like promoting a pawn to a bishop, are far less common than more standard ones, like promoting to a queen. To balance the dataset and ensure even representation of all move types, we will oversample the rarer moves. The sklearn.utils.resample function will assist in this process. </li>
+                    <li>Extracting Positional Features: Chess requires strong spatial reasoning, as players often visualize the board as a 2D image. To provide models with this spatial context, we will simulate the game up to the desired position and represent it as an 8x8 grid, where each square contains information about the piece occupying it. This technique is inspired by approaches like AlphaGo [4]. For this, we will use the <code>python-chess</code> library, which supports PGN parsing and board rendering. </li>
+                    <li>Eliminating Non-representative Positions: Chess involves both memorization and strategic thinking. Positions where moves are driven by memorized patterns (like early-game openings) or time constraints (when players have less than 10 seconds on the clock) don’t reflect true human reasoning. To improve the quality of our data, we will exclude these positions using the <code>pandas.DataFrame.drop</code> function. </li>
+                    <li>Upsampling:  Certain moves, like promoting a pawn to a bishop, are far less common than more standard ones, like promoting to a queen. To balance the dataset and ensure even representation of all move types, we will oversample the rarer moves. The <code>sklearn.utils.resample</code> function will assist in this process. </li>
                 </ul>
 
             </li>
@@ -166,6 +166,7 @@ A "human-like" chess engine can address this need by simulating the decision-mak
           <li>Acher, Mathieu, and Gilles Esnault. "Large-scale Analysis of Chess Games with Chess Engines: A Preliminary Report." arXiv preprint arXiv:1607.04186 (2016).</li>
           <li>Silver, David, et al. "Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm." arXiv preprint arXiv:1712.01815 (2017).</li>
           <li>McIlroy-Young, Reid, et al. "Learning Models of Individual Behavior in Chess." arXiv preprint arXiv:2008.10086 (2020).</li>
+          <li>Silver, David, et al. "Mastering the game of Go with deep neural networks and tree search." nature 529.7587 (2016): 484-489.</li>
         </ol>
     </div>
 
@@ -193,7 +194,7 @@ A "human-like" chess engine can address this need by simulating the decision-mak
                 </tr>
                 <tr>
                     <td>Harshil Vagadia</td>
-                    <td>Contributions here</td>
+                    <td>Meetings, Research Proposals, Data Preprocessing Methods, ML Algorithms</td>
                 </tr>
                 <tr>
                     <td>Miloni Mittal</td>
