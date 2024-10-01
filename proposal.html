@@ -118,7 +118,7 @@ In 2020, McIlroy-Young et al. [3] took a step further in modeling human-like pla
         <ul>
             <li><strong>Problem Statement:</strong> Chess engines have traditionally been designed to achieve optimal play, often surpassing human ability through brute-force calculations and deep evaluations. While these engines excel in performance, they lack the nuance and variability of human play, making them feel too robotic and predictable. There is a growing need for a chess engine that can simulate human-like decision-making, which incorporates not only the optimal move but also human characteristics such as occasional mistakes, strategic depth, and style preferences.
 
-This project aims to develop a machine learning-based chess engine that mimics "human-like" moves by leveraging both supervised and unsupervised learning techniques. Using a large collection of chess games (PGNs), the model will learn to predict moves based on board states, player rating, and other factors that affect human decision-making. Additionally, it will generate new moves or entire games in a way that feels natural and reflective of human styles, including diverse strategies, cautious play, and controlled inaccuracies. This engine will cater to players seeking an engaging, lifelike opponent that mirrors human play at various skill level.</li>
+This project aims to develop a machine learning-based chess engine that mimics human-like play across a wide range of skill levels, from 1000 to 2800 Elo. By analyzing a vast dataset of chess games, the model will learn to predict and generate moves that reflect human decision-making patterns. The engine will adjust its play style and strength in fine-grained Elo increments (e.g., 1000-1100, 1100-1200, etc.), ensuring a realistic opponent at every skill level. It will incorporate diverse strategies, controlled inaccuracies, and natural game progression, including opening repertoires, middlegame plans, and endgame techniques typical of human players.</li>
 
             <li><strong>Motivation:</strong> This problem needs a solution because, since the <a href="https://www.nytimes.com/2022/06/17/crosswords/chess/chess-is-booming.html" target="_blank">pandemic</a>, chess has experienced a massive surge in popularity, with millions of new players engaging with the game online. While traditional chess engines have advanced to superhuman levels of play, they are optimized for perfection and often make moves that are hard for average players to understand. This can be discouraging for the influx of learners and casual players who picked up chess during the pandemic, seeking to improve their skills or enjoy a more human-like playing experience.
 
@@ -139,7 +139,7 @@ A "human-like" chess engine can address this need by simulating the decision-mak
                 </ul>
 
             </li>
-            <li><strong>Machine Learning Algorithms:</strong> 
+            <li><strong>Machine Learning Algorithms:</strong>
                 We will use ML algorithms to predict the next human-like move in a chess game.
                 <ul>
                     <li> VAE (Unsupervised): Traditional ML methods struggle with spatial data like images, so we need a way to convert chess positions into dense representations. We’ll use a Variational Autoencoder (VAE), an encoder-decoder model that learns to reconstruct inputs from compressed latent representations. Since VAEs don't require labeled data, we’ll train it exclusively on chess positions and use the encoder to generate dense features for each position. </li>
@@ -161,7 +161,7 @@ A "human-like" chess engine can address this need by simulating the decision-mak
 
     <!-- References Section -->
     <div class="section">
-        <h2>References</h2> 
+        <h2>References</h2>
         <ol>
           <li>Acher, Mathieu, and Gilles Esnault. "Large-scale Analysis of Chess Games with Chess Engines: A Preliminary Report." arXiv preprint arXiv:1607.04186 (2016).</li>
           <li>Silver, David, et al. "Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm." arXiv preprint arXiv:1712.01815 (2017).</li>
@@ -208,7 +208,7 @@ A "human-like" chess engine can address this need by simulating the decision-mak
                     <td>Lohith Kariyapla Siddalingappa</td>
                     <td>Problem Definition, Problem Motivation & Gantt-Chart</td>
                 </tr>
-            </tbody>            
+            </tbody>
         </table>
     </div>
 
@@ -216,7 +216,7 @@ A "human-like" chess engine can address this need by simulating the decision-mak
     <div class="section">
         <h2>Video Presentation</h2>
         <p>
-            Watch the proposal video here: <a href="https://youtu.be/YOUR_VIDEO_LINK" target="_blank">Proposal Video</a> 
+            Watch the proposal video here: <a href="https://youtu.be/YOUR_VIDEO_LINK" target="_blank">Proposal Video</a>
         </p>
     </div>
 
