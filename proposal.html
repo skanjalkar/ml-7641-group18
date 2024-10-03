@@ -195,59 +195,36 @@
                         <strong>Machine Learning Approach:</strong>
                         <ul>
                             <li>
-                                Variational Autoencoder (VAE):
-                                <ul>
-                                    <li>
-                                        Purpose: Generate dense, low-dimensional
-                                        representations of chess positions.
-                                    </li>
-                                    <li>
-                                        Advantage: Captures spatial
-                                        relationships in board states without
-                                        requiring labeled data.
-                                    </li>
-                                    <li>
-                                        Implementation: Encoder-decoder
-                                        architecture trained on chess positions.
-                                    </li>
-                                </ul>
+                                <p>
+                                    Variational Autoencoder (VAE): This
+                                    unsupervised model generates dense,
+                                    low-dimensional representations of chess
+                                    positions. It captures spatial relationships
+                                    in board states without requiring labeled
+                                    data, using an encoder-decoder architecture
+                                    trained on chess positions.
+                                </p>
                             </li>
                             <li>
-                                Random Forest:
-                                <ul>
-                                    <li>
-                                        Purpose: Predict human-like moves based
-                                        on positional features.
-                                    </li>
-                                    <li>
-                                        Advantage: Efficient for large datasets,
-                                        handles non-linear relationships well.
-                                    </li>
-                                    <li>
-                                        Implementation: Ensemble of decision
-                                        trees trained on VAE-encoded positions
-                                        and move labels.
-                                    </li>
-                                </ul>
+                                <p>
+                                    Random Forest: This model predicts
+                                    human-like moves based on positional
+                                    features. Efficient for large datasets and
+                                    adept at handling non-linear relationships,
+                                    it uses an ensemble of decision trees
+                                    trained on VAE-encoded positions and move
+                                    labels.
+                                </p>
                             </li>
                             <li>
-                                Multi-Layer Perceptron (MLP):
-                                <ul>
-                                    <li>
-                                        Purpose: Capture complex patterns in
-                                        chess decision-making.
-                                    </li>
-                                    <li>
-                                        Advantage: Capable of learning
-                                        hierarchical features from raw board
-                                        representations.
-                                    </li>
-                                    <li>
-                                        Implementation: Deep neural network with
-                                        multiple hidden layers, trained on
-                                        position-move pairs.
-                                    </li>
-                                </ul>
+                                <p>
+                                    Multi-Layer Perceptron (MLP): This model
+                                    captures complex patterns in chess
+                                    decision-making. Capable of learning
+                                    hierarchical features from raw board
+                                    representations, it employs multiple hidden
+                                    layers trained on position-move pairs.
+                                </p>
                             </li>
                         </ul>
                     </li>
@@ -272,15 +249,15 @@
                         <strong>Project Goals:</strong>
                         <ul>
                             <li>
-                                Develop a chess engine that simulates human-like
-                                play across various skill levels
+                                Develop a chess engine simulating human-like
+                                play across skill levels
                             </li>
                             <li>
                                 Generate realistic, valid chess moves for given
                                 board positions
                             </li>
                             <li>
-                                Capture the nuances of human decision-making in
+                                Capture nuances of human decision-making in
                                 chess
                             </li>
                         </ul>
@@ -290,23 +267,23 @@
                         <ul>
                             <li>
                                 VAE: Low reconstruction loss, indicating
-                                accurate encoding of chess positions
+                                accurate position encoding
                             </li>
                             <li>
                                 Random Forest and MLP: High accuracy in
-                                predicting exact human moves
+                                predicting human moves
                             </li>
                             <li>
-                                Improved top-k accuracy, showing that human-like
-                                moves are consistently among top predictions
+                                Improved top-k accuracy for human-like move
+                                predictions
                             </li>
                             <li>
-                                For every input chess board position, the model
-                                should generate a valid, human-like move
+                                Valid, human-like moves generated for each input
+                                position
                             </li>
                             <li>
-                                The system should demonstrate varied play styles
-                                and strategic depth across different Elo ratings
+                                Varied play styles and strategic depth across
+                                Elo ratings
                             </li>
                         </ul>
                     </li>
