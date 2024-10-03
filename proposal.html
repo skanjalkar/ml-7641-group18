@@ -96,15 +96,7 @@
         <ul>
             <li><strong>Literature Review</strong></li>
 <p>
-In 2016, Acher and Esnault [1] pioneered large-scale chess game analysis using the Stockfish engine, processing millions of positions to identify patterns in human decision-making and blunder detection. This large dataset enabled the exploration of player behavior and laid the groundwork for advanced machine learning applications in chess.
-</p>
-
-<p>
-Building on these foundations, Silver et al. [2] in 2017 introduced AlphaZero, an AI that learned to play chess through self-play without human input. AlphaZero revolutionized the field by combining deep reinforcement learning with Monte Carlo Tree Search (MCTS), achieving superhuman performance across multiple board games including chess, shogi, and Go, within hours.
-</p>
-
-<p>
-In 2020, McIlroy-Young et al. [3] took a step further in modeling human-like play. Their model, Maia, was fine-tuned to predict individual player moves based on datasets of online chess games. Unlike AlphaZero, which optimized for perfect play, Maia aimed to mimic human tendencies, including mistakes and imprecisions, thus offering more relatable and educational AI for players.
+Acher and Esnault (2016) [1] conducted large-scale chess analysis using Stockfish, revealing patterns in human decision-making. Silver et al. (2017) [2] introduced AlphaZero, an AI that achieved superhuman performance in chess through self-play, combining deep reinforcement learning with Monte Carlo Tree Search. McIlroy-Young et al. (2020) [3] developed Maia, an AI model fine-tuned to mimic human chess play, including mistakes, for more relatable and educational purposes.
 </p>
 
            <li><strong>Dataset Description:</strong>A standard Lichess dataset contains chess game information such as player IDs, ratings, game results (win, loss, or draw), time control, and termination reasons (e.g., resignation or checkmate). Each game is identified by a unique ID and includes metadata like the opening name and ECO code, date and time, and the move list in Portable Game Notation (PGN). Some datasets may also include move timestamps, annotations for notable moves, or "optimal" engine evaluations at certain moves. Optional player metadata, such as titles (GM, IM) may also be available.</li>
@@ -120,9 +112,7 @@ In 2020, McIlroy-Young et al. [3] took a step further in modeling human-like pla
 
 This project aims to develop a machine learning-based chess engine that mimics human-like play across a wide range of skill levels, from 1000 to 2800 Elo. By analyzing a vast dataset of chess games, the model will learn to predict and generate moves that reflect human decision-making patterns. The engine will adjust its play style and strength in fine-grained Elo increments (e.g., 1000-1100, 1100-1200, etc.), ensuring a realistic opponent at every skill level. It will incorporate diverse strategies, controlled inaccuracies, and natural game progression, including opening repertoires, middlegame plans, and endgame techniques typical of human players.</li>
 
-            <li><strong>Motivation:</strong> This problem needs a solution because, since the <a href="https://www.nytimes.com/2022/06/17/crosswords/chess/chess-is-booming.html" target="_blank">pandemic</a>, chess has experienced a massive surge in popularity, with millions of new players engaging with the game online. While traditional chess engines have advanced to superhuman levels of play, they are optimized for perfection and often make moves that are hard for average players to understand. This can be discouraging for the influx of learners and casual players who picked up chess during the pandemic, seeking to improve their skills or enjoy a more human-like playing experience.
-
-A "human-like" chess engine can address this need by simulating the decision-making processes of real players, incorporating relatable mistakes, strategic thought processes, and diverse playing styles. Such an engine would serve as an educational tool and a more relatable opponent, enhancing the learning curve for new players and providing a more engaging experience for players at all levels. Given the explosive growth of online chess since the pandemic, there is a strong demand for AI systems that don’t just play perfectly, but play in a way that humans can learn from and enjoy.</li>
+            <li><strong>Motivation:</strong> The recent chess boom, accelerated by the pandemic, has created a need for more relatable AI opponents. While traditional chess engines play at superhuman levels, they can be intimidating and less instructive for new players. A "human-like" chess engine that simulates realistic decision-making, including common mistakes, would serve as a better educational tool and provide a more engaging experience for players of all levels. This addresses the growing demand for AI systems that players can learn from and enjoy, rather than just perfect play..</li>
         </ul>
     </div>
 
