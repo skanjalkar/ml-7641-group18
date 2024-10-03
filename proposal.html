@@ -1,228 +1,348 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Machine Learning Project Proposal</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f7f7f7;
-            color: #333;
-        }
-        header {
-            background-color: #3498db;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 2.5em;
-        }
-        main {
-            padding: 20px;
-            max-width: 1000px;
-            margin: auto;
-        }
-        .section {
-            background-color: #fff;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        .section h2 {
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-        ul {
-            padding-left: 20px;
-            list-style-type: disc;
-        }
-        ul li {
-            margin: 10px 0;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-        }
-        th {
-            background-color: #3498db;
-            color: white;
-        }
-        td {
-            background-color: #f9f9f9;
-        }
-        a {
-            color: #3498db;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #3498db;
-            color: white;
-            position: relative;
-            bottom: 0;
-            width: 100%;
-        }
-    </style>
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Machine Learning Project Proposal</title>
+        <style>
+            body {
+                font-family: "Arial", sans-serif;
+                line-height: 1.6;
+                margin: 0;
+                padding: 0;
+                background-color: #f7f7f7;
+                color: #333;
+            }
+            header {
+                background-color: #3498db;
+                color: #fff;
+                padding: 20px;
+                text-align: center;
+            }
+            header h1 {
+                margin: 0;
+                font-size: 2.5em;
+            }
+            main {
+                padding: 20px;
+                max-width: 1000px;
+                margin: auto;
+            }
+            .section {
+                background-color: #fff;
+                padding: 20px;
+                margin-bottom: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+            .section h2 {
+                border-bottom: 2px solid #3498db;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+                color: #2c3e50;
+            }
+            ul {
+                padding-left: 20px;
+                list-style-type: disc;
+            }
+            ul li {
+                margin: 10px 0;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+            table,
+            th,
+            td {
+                border: 1px solid #ddd;
+                padding: 12px;
+            }
+            th {
+                background-color: #3498db;
+                color: white;
+            }
+            td {
+                background-color: #f9f9f9;
+            }
+            a {
+                color: #3498db;
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+            footer {
+                text-align: center;
+                padding: 20px;
+                background-color: #3498db;
+                color: white;
+                position: relative;
+                bottom: 0;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Machine Learning Project Proposal</h1>
+        </header>
 
-<header>
-    <h1>Machine Learning Project Proposal</h1>
-</header>
-
-<main>
-    <!-- Introduction Section -->
-    <div class="section">
-        <h2>Introduction/Background</h2>
-        <ul>
-            <li><strong>Literature Review</strong></li>
-<p>
-Acher and Esnault (2016) [1] conducted large-scale chess analysis using Stockfish, revealing patterns in human decision-making. Silver et al. (2017) [2] introduced AlphaZero, an AI that achieved superhuman performance in chess through self-play, combining deep reinforcement learning with Monte Carlo Tree Search. McIlroy-Young et al. (2020) [3] developed Maia, an AI model fine-tuned to mimic human chess play, including mistakes, for more relatable and educational purposes.
-</p>
-
-           <li><strong>Dataset Description:</strong>A standard Lichess dataset contains chess game information such as player IDs, ratings, game results (win, loss, or draw), time control, and termination reasons (e.g., resignation or checkmate). Each game is identified by a unique ID and includes metadata like the opening name and ECO code, date and time, and the move list in Portable Game Notation (PGN). Some datasets may also include move timestamps, annotations for notable moves, or "optimal" engine evaluations at certain moves. Optional player metadata, such as titles (GM, IM) may also be available.</li>
-            <li><strong>Dataset Link:</strong> <a href="https://database.lichess.org/#standard_games" target="_blank">Link to Dataset</a></li>
-       </ul>
-    </div>
-
-    <!-- Problem Definition Section -->
-    <div class="section">
-        <h2>Problem Definition</h2>
-        <ul>
-            <li><strong>Problem Statement:</strong> Chess engines have traditionally been designed to achieve optimal play, often surpassing human ability through brute-force calculations and deep evaluations. While these engines excel in performance, they lack the nuance and variability of human play, making them feel too robotic and predictable. There is a growing need for a chess engine that can simulate human-like decision-making, which incorporates not only the optimal move but also human characteristics such as occasional mistakes, strategic depth, and style preferences.
-
-This project aims to develop a machine learning-based chess engine that mimics human-like play across a wide range of skill levels, from 1000 to 2800 Elo. By analyzing a vast dataset of chess games, the model will learn to predict and generate moves that reflect human decision-making patterns. The engine will adjust its play style and strength in fine-grained Elo increments (e.g., 1000-1100, 1100-1200, etc.), ensuring a realistic opponent at every skill level. It will incorporate diverse strategies, controlled inaccuracies, and natural game progression, including opening repertoires, middlegame plans, and endgame techniques typical of human players.</li>
-
-            <li><strong>Motivation:</strong> The recent chess boom, accelerated by the pandemic, has created a need for more relatable AI opponents. While traditional chess engines play at superhuman levels, they can be intimidating and less instructive for new players. A "human-like" chess engine that simulates realistic decision-making, including common mistakes, would serve as a better educational tool and provide a more engaging experience for players of all levels. This addresses the growing demand for AI systems that players can learn from and enjoy, rather than just perfect play..</li>
-        </ul>
-    </div>
-
-    <!-- Methods Section -->
-    <div class="section">
-        <h2>Methods</h2>
-        <ul>
-            <li><strong>Data Preprocessing Methods:</strong>
-                Our dataset is in PGN format, which encodes the moves of a chess game as a sequence of strings. Since we aim to predict human-like moves at specific positions, thorough data preprocessing is essential.
+        <main>
+            <!-- Introduction Section -->
+            <div class="section">
+                <h2>Introduction/Background</h2>
                 <ul>
-                    <li>Extracting Positional Features: Chess requires strong spatial reasoning, as players often visualize the board as a 2D image. To provide models with this spatial context, we will simulate the game up to the desired position and represent it as an 8x8 grid, where each square contains information about the piece occupying it. This technique is inspired by approaches like AlphaGo [4]. For this, we will use the <code>python-chess</code> library, which supports PGN parsing and board rendering. </li>
-                    <li>Eliminating Non-representative Positions: Chess involves both memorization and strategic thinking. Positions where moves are driven by memorized patterns (like early-game openings) or time constraints (when players have less than 10 seconds on the clock) don’t reflect true human reasoning. To improve the quality of our data, we will exclude these positions using the <code>pandas.DataFrame.drop</code> function. </li>
-                    <li>Upsampling:  Certain moves, like promoting a pawn to a bishop, are far less common than more standard ones, like promoting to a queen. To balance the dataset and ensure even representation of all move types, we will oversample the rarer moves. The <code>sklearn.utils.resample</code> function will assist in this process. </li>
+                    <li><strong>Literature Review</strong></li>
+                    <p>
+                        Acher and Esnault (2016) [1] conducted large-scale chess
+                        analysis using Stockfish, revealing patterns in human
+                        decision-making. Silver et al. (2017) [2] introduced
+                        AlphaZero, an AI that achieved superhuman performance in
+                        chess through self-play, combining deep reinforcement
+                        learning with Monte Carlo Tree Search. McIlroy-Young et
+                        al. (2020) [3] developed Maia, an AI model fine-tuned to
+                        mimic human chess play, including mistakes, for more
+                        relatable and educational purposes.
+                    </p>
+
+                    <li>
+                        <strong>Dataset Description:</strong>A standard Lichess
+                        dataset contains chess game information such as player
+                        IDs, ratings, game results (win, loss, or draw), time
+                        control, and termination reasons (e.g., resignation or
+                        checkmate). Each game is identified by a unique ID and
+                        includes metadata like the opening name and ECO code,
+                        date and time, and the move list in Portable Game
+                        Notation (PGN). Some datasets may also include move
+                        timestamps, annotations for notable moves, or "optimal"
+                        engine evaluations at certain moves. Optional player
+                        metadata, such as titles (GM, IM) may also be available.
+                    </li>
+                    <li>
+                        <strong>Dataset Link:</strong>
+                        <a
+                            href="https://database.lichess.org/#standard_games"
+                            target="_blank"
+                            >Link to Dataset</a
+                        >
+                    </li>
                 </ul>
+            </div>
 
-            </li>
-            <li><strong>Machine Learning Algorithms:</strong>
-                We will use ML algorithms to predict the next human-like move in a chess game.
+            <!-- Problem Definition Section -->
+            <div class="section">
+                <h2>Problem Definition</h2>
                 <ul>
-                    <li> VAE (Unsupervised): Traditional ML methods struggle with spatial data like images, so we need a way to convert chess positions into dense representations. We’ll use a Variational Autoencoder (VAE), an encoder-decoder model that learns to reconstruct inputs from compressed latent representations. Since VAEs don't require labeled data, we’ll train it exclusively on chess positions and use the encoder to generate dense features for each position. </li>
-                    <li>Random Forest (Supervised): Random Forest is a fast and efficient ML algorithm for classification. Since we have a large dataset, this is a natural choice for classical ML algorithm. We will train a random forest classifier to predict next human moves.</li>
-                    <li>MLP (Supervised): A Multi-Layer Perceptron (MLP) is a deep learning model capable of capturing complex patterns in data. Given the success of deep learning in various tasks, we will employ MLP to predict human-like chess moves. </li>
-            </li>
-        </ul>
-    </div>
+                    <li>
+                        <strong>Problem Statement:</strong> Current chess
+                        engines excel at optimal play but fail to capture the
+                        nuances of human decision-making, resulting in an
+                        unrealistic and often frustrating experience for players
+                        seeking to improve or engage with AI opponents. There is
+                        a need for a chess engine that can accurately simulate
+                        human-like play across a wide range of skill levels
+                        (1000-2800 Elo), incorporating realistic mistakes,
+                        diverse strategies, and style preferences typical of
+                        human players. This engine should provide a more
+                        relatable, educational, and engaging experience for
+                        chess players of all abilities, addressing the gap
+                        between superhuman AI performance and the learning needs
+                        of human players.
+                    </li>
 
-    <!-- Results Section -->
-    <div class="section">
-        <h2>(Potential) Results and Discussion</h2>
-        <ul>
-            <li><strong>Quantitative Metrics:</strong> (e.g. accuracy, precision, recall)</li>
-            <li><strong>Project Goals:</strong> What do you hope to achieve?</li>
-            <li><strong>Expected Results:</strong> What are your expectations?</li>
-        </ul>
-    </div>
+                    <li>
+                        <strong>Motivation:</strong> The recent chess boom,
+                        accelerated by the pandemic, has created a need for more
+                        relatable AI opponents. While traditional chess engines
+                        play at superhuman levels, they can be intimidating and
+                        less instructive for new players. A "human-like" chess
+                        engine that simulates realistic decision-making,
+                        including common mistakes, would serve as a better
+                        educational tool and provide a more engaging experience
+                        for players of all levels. This addresses the growing
+                        demand for AI systems that players can learn from and
+                        enjoy, rather than just perfect play..
+                    </li>
+                </ul>
+            </div>
 
-    <!-- References Section -->
-    <div class="section">
-        <h2>References</h2>
-        <ol>
-          <li>Acher, Mathieu, and Gilles Esnault. "Large-scale Analysis of Chess Games with Chess Engines: A Preliminary Report." arXiv preprint arXiv:1607.04186 (2016).</li>
-          <li>Silver, David, et al. "Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm." arXiv preprint arXiv:1712.01815 (2017).</li>
-          <li>McIlroy-Young, Reid, et al. "Learning Models of Individual Behavior in Chess." arXiv preprint arXiv:2008.10086 (2020).</li>
-          <li>Silver, David, et al. "Mastering the game of Go with deep neural networks and tree search." nature 529.7587 (2016): 484-489.</li>
-        </ol>
-    </div>
+            <!-- Methods Section -->
+            <div class="section">
+                <h2>Methods</h2>
+                <ul>
+                    <li>
+                        <strong>Data Preprocessing:</strong>
+                        <ul>
+                            <li>
+                                Position Extraction: Convert PGN data to 8x8
+                                grid representations using
+                                <code>python-chess</code>.
+                            </li>
+                            <li>
+                                Data Filtering: Remove non-representative
+                                positions (e.g., openings, time-pressure moves).
+                            </li>
+                            <li>
+                                Balance Adjustment: Oversample rare moves to
+                                ensure even representation.
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Machine Learning Approach:</strong>
+                        <ul>
+                            <li>
+                                Variational Autoencoder: Generate dense
+                                representations of chess positions.
+                            </li>
+                            <li>
+                                Random Forest: Predict human-like moves
+                                efficiently on large datasets.
+                            </li>
+                            <li>
+                                Multi-Layer Perceptron: Capture complex patterns
+                                in chess decision-making.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
 
-    <!-- Gantt Chart Section -->
-    <div class="section">
-        <h2>Gantt Chart</h2>
-        <a href="https://docs.google.com/spreadsheets/d/1zG6DFRxL2044DozPC6cnIJAXOoCAfsPN/edit?usp=sharing&ouid=114477242680574182935&rtpof=true&sd=true">
-           Gantt Chart Link
-        </a>
-    </div>
-    <!-- Contribution Table Section -->
-    <div class="section">
-        <h2>Contribution Table</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Proposal Contributions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Shreyas Kanjalkar</td>
-                    <td>Meetings, Research Proposals, Github Pages, Intro/Background</td>
-                </tr>
-                <tr>
-                    <td>Harshil Vagadia</td>
-                    <td>Meetings, Research Proposals, Data Preprocessing Methods, ML Algorithms</td>
-                </tr>
-                <tr>
-                    <td>Miloni Mittal</td>
-                    <td>Meetings, Research Proposal, Results and Discussion</td>
-                </tr>
-                <tr>
-                    <td>Jineet Hemalkumar Desai</td>
-                    <td>Meetings, Proposal Presentation, Proposal Video</td>
-                </tr>
-                <tr>
-                    <td>Lohith Kariyapla Siddalingappa</td>
-                    <td>Problem Definition, Problem Motivation & Gantt-Chart</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+            <!-- Results Section -->
+            <div class="section">
+                <h2>(Potential) Results and Discussion</h2>
+                <ul>
+                    <li>
+                        <strong>Quantitative Metrics:</strong> (e.g. accuracy,
+                        precision, recall)
+                    </li>
+                    <li>
+                        <strong>Project Goals:</strong> What do you hope to
+                        achieve?
+                    </li>
+                    <li>
+                        <strong>Expected Results:</strong> What are your
+                        expectations?
+                    </li>
+                </ul>
+            </div>
 
-    <!-- Video Presentation Section -->
-    <div class="section">
-        <h2>Video Presentation</h2>
-        <p>
-            Watch the proposal video here: <a href="https://youtu.be/ttWXyr9gcPA" target="_blank">Proposal Video</a>
-        </p>
-    </div>
+            <!-- References Section -->
+            <div class="section">
+                <h2>References</h2>
+                <ol>
+                    <li>
+                        Acher, Mathieu, and Gilles Esnault. "Large-scale
+                        Analysis of Chess Games with Chess Engines: A
+                        Preliminary Report." arXiv preprint arXiv:1607.04186
+                        (2016).
+                    </li>
+                    <li>
+                        Silver, David, et al. "Mastering Chess and Shogi by
+                        Self-Play with a General Reinforcement Learning
+                        Algorithm." arXiv preprint arXiv:1712.01815 (2017).
+                    </li>
+                    <li>
+                        McIlroy-Young, Reid, et al. "Learning Models of
+                        Individual Behavior in Chess." arXiv preprint
+                        arXiv:2008.10086 (2020).
+                    </li>
+                    <li>
+                        Silver, David, et al. "Mastering the game of Go with
+                        deep neural networks and tree search." nature 529.7587
+                        (2016): 484-489.
+                    </li>
+                </ol>
+            </div>
 
-    <!-- GitHub Repository Section -->
-    <div class="section">
-        <h2>GitHub Repository</h2>
-        <p>
-            Repository: <a href="https://github.com/skanjalkar/ml-7641-group18" target="_blank">GitHub Repo Link</a>
-        </p>
-    </div>
+            <!-- Gantt Chart Section -->
+            <div class="section">
+                <h2>Gantt Chart</h2>
+                <a
+                    href="https://docs.google.com/spreadsheets/d/1zG6DFRxL2044DozPC6cnIJAXOoCAfsPN/edit?usp=sharing&ouid=114477242680574182935&rtpof=true&sd=true"
+                >
+                    Gantt Chart Link
+                </a>
+            </div>
+            <!-- Contribution Table Section -->
+            <div class="section">
+                <h2>Contribution Table</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Proposal Contributions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Shreyas Kanjalkar</td>
+                            <td>
+                                Meetings, Research Proposals, Github Pages,
+                                Intro/Background
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Harshil Vagadia</td>
+                            <td>
+                                Meetings, Research Proposals, Data Preprocessing
+                                Methods, ML Algorithms
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Miloni Mittal</td>
+                            <td>
+                                Meetings, Research Proposal, Results and
+                                Discussion
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Jineet Hemalkumar Desai</td>
+                            <td>
+                                Meetings, Proposal Presentation, Proposal Video
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Lohith Kariyapla Siddalingappa</td>
+                            <td>
+                                Problem Definition, Problem Motivation &
+                                Gantt-Chart
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-</main>
+            <!-- Video Presentation Section -->
+            <div class="section">
+                <h2>Video Presentation</h2>
+                <p>
+                    Watch the proposal video here:
+                    <a href="https://youtu.be/ttWXyr9gcPA" target="_blank"
+                        >Proposal Video</a
+                    >
+                </p>
+            </div>
 
-<footer>
-    <p>© 2024 Machine Learning Project | GitHub Pages</p>
-</footer>
+            <!-- GitHub Repository Section -->
+            <div class="section">
+                <h2>GitHub Repository</h2>
+                <p>
+                    Repository:
+                    <a
+                        href="https://github.com/skanjalkar/ml-7641-group18"
+                        target="_blank"
+                        >GitHub Repo Link</a
+                    >
+                </p>
+            </div>
+        </main>
 
-</body>
+        <footer>
+            <p>© 2024 Machine Learning Project | GitHub Pages</p>
+        </footer>
+    </body>
 </html>
