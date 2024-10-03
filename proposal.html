@@ -195,16 +195,59 @@
                         <strong>Machine Learning Approach:</strong>
                         <ul>
                             <li>
-                                Variational Autoencoder: Generate dense
-                                representations of chess positions.
+                                Variational Autoencoder (VAE):
+                                <ul>
+                                    <li>
+                                        Purpose: Generate dense, low-dimensional
+                                        representations of chess positions.
+                                    </li>
+                                    <li>
+                                        Advantage: Captures spatial
+                                        relationships in board states without
+                                        requiring labeled data.
+                                    </li>
+                                    <li>
+                                        Implementation: Encoder-decoder
+                                        architecture trained on chess positions.
+                                    </li>
+                                </ul>
                             </li>
                             <li>
-                                Random Forest: Predict human-like moves
-                                efficiently on large datasets.
+                                Random Forest:
+                                <ul>
+                                    <li>
+                                        Purpose: Predict human-like moves based
+                                        on positional features.
+                                    </li>
+                                    <li>
+                                        Advantage: Efficient for large datasets,
+                                        handles non-linear relationships well.
+                                    </li>
+                                    <li>
+                                        Implementation: Ensemble of decision
+                                        trees trained on VAE-encoded positions
+                                        and move labels.
+                                    </li>
+                                </ul>
                             </li>
                             <li>
-                                Multi-Layer Perceptron: Capture complex patterns
-                                in chess decision-making.
+                                Multi-Layer Perceptron (MLP):
+                                <ul>
+                                    <li>
+                                        Purpose: Capture complex patterns in
+                                        chess decision-making.
+                                    </li>
+                                    <li>
+                                        Advantage: Capable of learning
+                                        hierarchical features from raw board
+                                        representations.
+                                    </li>
+                                    <li>
+                                        Implementation: Deep neural network with
+                                        multiple hidden layers, trained on
+                                        position-move pairs.
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
                     </li>
