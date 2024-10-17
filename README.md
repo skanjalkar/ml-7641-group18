@@ -28,7 +28,21 @@ pip install -r requirements.txt
 deactivate
 ```
 
+## Download pgn files from lichess
+1. Download the pgn files from lichess using the following command (careful, this will download 2 files, each 30 gb worth of data).
+For convenience, there is a test.pgn file already in the data folder to test how the parser works.
+```bash
+./scripts/download_games_torrent.sh
+```
+
 ## Parsing the code
+
+For each game, it iterates through the moves, considering only those that meet certain criteria:
+- the game has progressed beyond a minimum number of moves
+- the move is randomly selected based on a probability
+- there's sufficient clock time remaining.
+
+When a move meets these criteria, the processor creates a data point consisting of two board states (before and after the move) and the player's Elo rating. This data is then yielded as a tuple.
 
 1. Run the following command to parse the pgn files and store them into npy files according to bins:
 ```bash
