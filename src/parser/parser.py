@@ -1,7 +1,7 @@
 import numpy as np
 from pathlib import Path
 from game_processor import GameProcessor
-from config import PGN_FILE, DATA_DIR
+from config import PGN_FILE_PATH, DATA_DIR
 from chess_utils import get_bin, create_bins_folders
 
 def main():
@@ -9,14 +9,18 @@ def main():
     # path from file downloaded directly from lichess
     np.random.seed(69)
     create_bins_folders()
-    processor = GameProcessor(PGN_FILE)
-    for data, elo in processor.process_games():
-        bin = get_bin(elo)
-        if bin:
-            bin_dir = DATA_DIR / "bins" / bin
-            bin_dir.mkdir(parents=True, exist_ok=True)
-            file_path = bin_dir / f"{elo}-{np.random.randint(1000000)}.npy"
-            np.save(file_path, data)
+    # get all the .pgn files in the directory of PGN_FILE_PATH
+    for PGN_FILE in PGN_FILE_PATH.glob("*.pgn"):
+        print(f"Processing {PGN_FILE} .......")
+        processor = GameProcessor(PGN_FILE)
+
+        for data, elo in processor.process_games():
+            bin = get_bin(elo)
+            if bin:
+                bin_dir = DATA_DIR / "bins" / bin
+                bin_dir.mkdir(parents=True, exist_ok=True)
+                file_path = bin_dir / f"{elo}-{np.random.randint(1000000)}.npy"
+                np.save(file_path, data)
 
 if __name__ == "__main__":
     main()
