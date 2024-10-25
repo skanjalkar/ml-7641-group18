@@ -3,10 +3,9 @@ import numpy as np
 from typing import Iterator
 
 from stockfish.models import Stockfish
-from config import MIN_MOVES, MOVE_SELECTION_PROBABILITY, MIN_CLOCK_TIME, BLUNDER_THRESHOLD
+from config import MIN_MOVES, MOVE_SELECTION_PROBABILITY, MIN_CLOCK_TIME, BLUNDER_THRESHOLD, STOCKFISH_PATH
 from chess_utils import board_to_array, get_bin, create_8x8x17_board
 from time_utils import get_clock_time
-# import stockfish
 import stockfish
 
 class GameProcessor:
@@ -17,7 +16,7 @@ class GameProcessor:
 
     @staticmethod
     def stockfish_initialize():
-        stockfish = Stockfish("/usr/games/stockfish")
+        stockfish = Stockfish(STOCKFISH_PATH)
         stockfish.update_engine_parameters({
                 "Threads": 8,
                 "Hash": 128,
