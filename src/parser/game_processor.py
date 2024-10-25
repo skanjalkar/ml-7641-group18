@@ -19,7 +19,7 @@ class GameProcessor:
     def stockfish_initialize():
         stockfish = Stockfish("/usr/games/stockfish")
         stockfish.update_engine_parameters({
-                "Threads": 4,
+                "Threads": 8,
                 "Hash": 128,
                 "Minimum Thinking Time": 0,
                 "Skill Level": 20
