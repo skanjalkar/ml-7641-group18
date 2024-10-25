@@ -1,13 +1,31 @@
 import chess.pgn
 import numpy as np
 from typing import Iterator
-from config import MIN_MOVES, MOVE_SELECTION_PROBABILITY, MIN_CLOCK_TIME
-from chess_utils import board_to_array, get_bin
+
+from stockfish.models import Stockfish
+from config import MIN_MOVES, MOVE_SELECTION_PROBABILITY, MIN_CLOCK_TIME, BLUNDER_THRESHOLD
+from chess_utils import board_to_array, get_bin, create_8x8x17_board
 from time_utils import get_clock_time
+# import stockfish
+import stockfish
 
 class GameProcessor:
     def __init__(self, pgn_file: str):
         self.pgn_file = pgn_file
+        self.stockfish = self.stockfish_initialize()
+        self.game_count = 0
+
+    @staticmethod
+    def stockfish_initialize():
+        stockfish = Stockfish("/usr/games/stockfish")
+        stockfish.update_engine_parameters({
+                "Threads": 4,
+                "Hash": 128,
+                "Minimum Thinking Time": 0,
+                "Skill Level": 20
+            }
+        )
+        return stockfish
 
     def process_games(self) -> Iterator[tuple]:
         with open(self.pgn_file) as pgn:
@@ -22,6 +40,8 @@ class GameProcessor:
             return
 
         board = game.board()
+        self.game_count += 1
+        print("Game count : ", self.game_count, "  Processing game....")
         move_count = 0
 
         for node in game.mainline():
@@ -30,17 +50,59 @@ class GameProcessor:
             clock_time = get_clock_time(comment)
 
             if (move_count >= MIN_MOVES and
-                np.random.random() < MOVE_SELECTION_PROBABILITY and
                 clock_time is not None and
                 clock_time >= MIN_CLOCK_TIME):
 
-                elo = game.headers["WhiteElo"] if move_count % 2 == 0 else game.headers["BlackElo"]
-                board_array = board_to_array(board)
-                board.push(move)
-                ground_truth_board = board_to_array(board)
-                data = np.stack((board_array, ground_truth_board), axis=-1)
+                # Get evaluation before move
+                self.stockfish.set_fen_position(board.fen())
+                eval_before = self.stockfish.get_evaluation()
 
-                yield data, int(elo)
+                # Make the move and get evaluation after
+                board.push(move)
+                self.stockfish.set_fen_position(board.fen())
+                eval_after = self.stockfish.get_evaluation()
+
+
+                # Calculate evaluation difference
+                eval_diff = abs(self.get_eval_value(eval_after) - self.get_eval_value(eval_before))
+                is_blunder = eval_diff >= BLUNDER_THRESHOLD
+
+                # Adjust sampling probability based on whether it's a blunder
+                should_sample = (
+                    np.random.random() < MOVE_SELECTION_PROBABILITY or  # normal sampling
+                    (is_blunder and np.random.random() < 0.75)  # increased sampling for blunders
+                )
+
+                if should_sample:
+                    elo = game.headers["WhiteElo"] if move_count % 2 == 0 else game.headers["BlackElo"]
+                    print("Yielding...")
+                    board_array = create_8x8x17_board(board)
+                    ground_truth = is_blunder
+
+                    # yield board_array, ground_truth, and elo
+                    yield_tuple = (board_array, ground_truth, int(elo))
+                    yield yield_tuple
             else:
                 board.push(move)
             move_count += 1
+
+    def get_eval_value(self, eval_dict):
+            """Convert Stockfish evaluation to numerical value"""
+            if eval_dict['type'] == 'cp':
+                return eval_dict['value']
+            elif eval_dict['type'] == 'mate':
+                # Convert mate score to high centipawn value
+                return 10000 * (1 if eval_dict['value'] > 0 else -1)
+            return 0
+            import re
+            from typing import Optional
+
+            def time_to_seconds(time_str: str) -> int:
+                """Convert time string to seconds."""
+                parts = time_str.split(':')
+                if len(parts) == 3:
+                    return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
+                elif len(parts) == 2:
+                    return int(parts[0]) * 60 + int(parts[1])
+                else:
+                    return int(parts[0])
