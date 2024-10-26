@@ -32,7 +32,7 @@ deactivate
 1. Download the pgn files from lichess using the following command (careful, this will download 2 files, each 30 gb worth of data).
 For convenience, there is a test.pgn file already in the data folder to test how the parser works.
 ```bash
-./scripts/download_games_torrent.sh
+python3 ./scripts/download_games_torrent.sh
 ```
 
 ## You also need to download the stockfish engine
