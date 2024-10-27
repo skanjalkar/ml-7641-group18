@@ -52,7 +52,6 @@ def main():
             print("Using default stockfish engine")
 
         assert(processor is not None, "Processor is None")
-
         for X, y, elo in processor.process_games():
             bin_name = get_bin(elo)
             if bin_name:

@@ -3,20 +3,20 @@ import numpy as np
 from typing import Iterator
 
 from stockfish.models import Stockfish
-from config import MIN_MOVES, MOVE_SELECTION_PROBABILITY, MIN_CLOCK_TIME, BLUNDER_THRESHOLD, STOCKFISH_PATH
+from config import MIN_MOVES, MOVE_SELECTION_PROBABILITY, MIN_CLOCK_TIME, BLUNDER_THRESHOLD
 from chess_utils import board_to_array, get_bin, create_8x8x17_board
 from time_utils import get_clock_time
 import stockfish
 
 class GameProcessor:
-    def __init__(self, pgn_file: str, stockfish_path: str = STOCKFISH_PATH):
+    def __init__(self, pgn_file: str, stockfish_path):
         self.pgn_file = pgn_file
         self.stockfish = self.stockfish_initialize(stockfish_path=stockfish_path)
         self.game_count = 0
 
     @staticmethod
-    def stockfish_initialize(stockfish_path: str = STOCKFISH_PATH):
-        stockfish = Stockfish()
+    def stockfish_initialize(stockfish_path):
+        stockfish = Stockfish(path=stockfish_path)
         stockfish.update_engine_parameters({
                 "Threads": 8,
                 "Hash": 128,
