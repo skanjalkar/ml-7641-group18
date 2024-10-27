@@ -9,14 +9,14 @@ from time_utils import get_clock_time
 import stockfish
 
 class GameProcessor:
-    def __init__(self, pgn_file: str):
+    def __init__(self, pgn_file: str, stockfish_path: str = STOCKFISH_PATH):
         self.pgn_file = pgn_file
-        self.stockfish = self.stockfish_initialize()
+        self.stockfish = self.stockfish_initialize(stockfish_path=stockfish_path)
         self.game_count = 0
 
     @staticmethod
-    def stockfish_initialize():
-        stockfish = Stockfish(STOCKFISH_PATH)
+    def stockfish_initialize(stockfish_path: str = STOCKFISH_PATH):
+        stockfish = Stockfish()
         stockfish.update_engine_parameters({
                 "Threads": 8,
                 "Hash": 128,

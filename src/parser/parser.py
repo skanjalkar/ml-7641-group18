@@ -1,9 +1,10 @@
 import numpy as np
 from pathlib import Path
 from game_processor import GameProcessor
-from config import PGN_FILE_PATH, DATA_DIR, CHUNK_SIZE
+from config import PGN_FILE_PATH, DATA_DIR, CHUNK_SIZE, STOCKFISH_PATH, STOCKFISH_PATH_CUSTOM
 from chess_utils import get_bin, create_bins_folders
 from collections import defaultdict
+import argparse
 
 # Initialize buffers for each ELO range
 X_buffers = defaultdict(list)
@@ -27,12 +28,30 @@ def save_chunk(bin_name, X_chunk, y_chunk, z_chunk):
 def main():
     # down the line change the path from PGN_FILE to
     # path from file downloaded directly from lichess
+    # use argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--stockfish_custom", type=bool, default=False)
+
+    args = parser.parse_args()
+    stockfish_custom = args.stockfish_custom
+
+
+    # if stockfish_custom is True, then the user should provide the path to the stockfish engine
     np.random.seed(69)
     create_bins_folders()
     # Get all the .pgn files in the directory of PGN_FILE_PATH
     for PGN_FILE in PGN_FILE_PATH.glob("*.pgn"):
         print(f"Processing {PGN_FILE} .......")
-        processor = GameProcessor(PGN_FILE)
+        processor = None
+        if (stockfish_custom):
+            processor = GameProcessor(PGN_FILE, STOCKFISH_PATH_CUSTOM)
+            print("Using custom stockfish engine")
+        else:
+            processor = GameProcessor(PGN_FILE, STOCKFISH_PATH)
+            print("Using default stockfish engine")
+
+        assert(processor is not None, "Processor is None")
 
         for X, y, elo in processor.process_games():
             bin_name = get_bin(elo)

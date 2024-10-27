@@ -36,6 +36,28 @@ python3 ./scripts/download_games_torrent.sh
 ```
 
 ## You also need to download the stockfish engine
+
+### For Pace, please follow these exact same instructions:
+- cd outside of the ml project (outside the root folder) and clone the stockfish engine
+```bash
+git clone git@github.com:official-stockfish/Stockfish.git
+```
+- cd into the Stockfish folder and build the engine
+```bash
+cd Stockfish/src
+git checkout sf_17
+make -j profile-build
+```
+- cd back into the ml project and update the path in the config.py file. I will probably make it into argparser later to make it easier
+```bash
+cd ../Stockfish/src/stockfish
+```
+
+Then move to Parsing the code.
+
+### If working on local machine you can do the following
+
+
 ```bash
 sudo apt-get install stockfish
 ```
@@ -62,5 +84,13 @@ The ratio of non-blunder to blunder is 2:1
 
 1. Run the following command to parse the pgn files and store them into npy files according to bins:
 ```bash
-python3 src/parser/parser.py
+python3 src/parser/parser.py --stockfish_custom=True
 ```
+
+## Delete npy file
+In order to delte the npy files, run the following command:
+```bash
+./scripts/delete_npy.sh
+```
+
+## TODO: Training model

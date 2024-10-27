@@ -14,6 +14,10 @@ files = [
     "lichess_db_standard_rated_2024-07.pgn.zst",
 ]
 
+# files = [
+#     "lichess_db_standard_rated_2013-01.pgn.zst"
+# ]
+
 # Corrected destination directory
 destination_dir = Path("data/pgn-data")
 
