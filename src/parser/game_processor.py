@@ -16,7 +16,7 @@ class GameProcessor:
         self.blunder_count = 0
 
     def stockfish_initialize(self, stockfish_path: str = STOCKFISH_PATH):
-        stockfish = Stockfish(STOCKFISH_PATH)
+        stockfish = Stockfish(stockfish_path)
         stockfish.update_engine_parameters({
                 "Threads": 1,
                 "Hash": 128,
