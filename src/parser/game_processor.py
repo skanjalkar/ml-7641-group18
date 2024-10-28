@@ -1,47 +1,31 @@
 import chess.pgn
 import numpy as np
-from typing import Iterator
-
-from stockfish.models import Stockfish
+from stockfish import Stockfish
 from config import MIN_MOVES, MOVE_SELECTION_PROBABILITY, MIN_CLOCK_TIME, BLUNDER_THRESHOLD
-from chess_utils import board_to_array, get_bin, create_8x8x17_board
+from chess_utils import create_8x8x17_board
 from time_utils import get_clock_time
-import stockfish
+import io
 
 class GameProcessor:
-    def __init__(self, pgn_file: str, stockfish_path):
-        self.pgn_file = pgn_file
-        self.stockfish = self.stockfish_initialize(stockfish_path=stockfish_path)
-        self.game_count = 0
+    def __init__(self, stockfish_path):
+        self.stockfish = Stockfish(path=stockfish_path)
+        self.stockfish.update_engine_parameters({
+            "Threads": 1,
+            "Hash": 128,
+            "Minimum Thinking Time": 0,
+            "Skill Level": 20
+        })
+        self.blunder = 0
+        self.not_blunder = 0
 
-    @staticmethod
-    def stockfish_initialize(stockfish_path):
-        stockfish = Stockfish(path=stockfish_path)
-        stockfish.update_engine_parameters({
-                "Threads": 8,
-                "Hash": 128,
-                "Minimum Thinking Time": 0,
-                "Skill Level": 20
-            }
-        )
-        return stockfish
-
-    def process_games(self) -> Iterator[tuple]:
-        with open(self.pgn_file) as pgn:
-            while True:
-                game = chess.pgn.read_game(pgn)
-                if game is None:
-                    break
-                yield from self.process_game(game)
-
-    def process_game(self, game: chess.pgn.Game) -> Iterator[tuple]:
-        if "Bullet" in game.headers["Event"]:
-            return
+    def process_game(self, game_data):
+        game = chess.pgn.read_game(io.StringIO(game_data))
+        if game is None or "Bullet" in game.headers.get("Event", ""):
+            return []
 
         board = game.board()
-        self.game_count += 1
-        print("Game count : ", self.game_count, "  Processing game....")
         move_count = 0
+        results = []
 
         for node in game.mainline():
             move = node.move
@@ -52,56 +36,46 @@ class GameProcessor:
                 clock_time is not None and
                 clock_time >= MIN_CLOCK_TIME):
 
-                # Get evaluation before move
+                # Set up board position and get evaluation before and after move
                 self.stockfish.set_fen_position(board.fen())
                 eval_before = self.stockfish.get_evaluation()
 
-                # Make the move and get evaluation after
                 board.push(move)
                 self.stockfish.set_fen_position(board.fen())
                 eval_after = self.stockfish.get_evaluation()
 
-
-                # Calculate evaluation difference
+                # Calculate evaluation difference and check for blunders
                 eval_diff = abs(self.get_eval_value(eval_after) - self.get_eval_value(eval_before))
                 is_blunder = eval_diff >= BLUNDER_THRESHOLD
 
-                # Adjust sampling probability based on whether it's a blunder
-                should_sample = (
-                    np.random.random() < MOVE_SELECTION_PROBABILITY or  # normal sampling
-                    (is_blunder and np.random.random() < 0.75)  # increased sampling for blunders
-                )
+                # Sampling based on move selection probability and blunder status
+                if (
+                    np.random.random() < MOVE_SELECTION_PROBABILITY or
+                    (is_blunder and np.random.random() < 0.75)
+                ):
+                    elo = game.headers.get("WhiteElo" if move_count % 2 == 0 else "BlackElo", "1500")
+                    try:
+                        elo = int(elo)
+                    except ValueError:
+                        elo = 1500  # Default Elo if parsing fails
 
-                if should_sample:
-                    elo = game.headers["WhiteElo"] if move_count % 2 == 0 else game.headers["BlackElo"]
-                    print("Yielding...")
                     board_array = create_8x8x17_board(board)
                     ground_truth = is_blunder
-
-                    # yield board_array, ground_truth, and elo
-                    yield_tuple = (board_array, ground_truth, int(elo))
-                    yield yield_tuple
+                    results.append((board_array, ground_truth, elo))
+                    self.blunder += is_blunder
+                    self.not_blunder += not is_blunder
             else:
                 board.push(move)
             move_count += 1
 
-    def get_eval_value(self, eval_dict):
-            """Convert Stockfish evaluation to numerical value"""
-            if eval_dict['type'] == 'cp':
-                return eval_dict['value']
-            elif eval_dict['type'] == 'mate':
-                # Convert mate score to high centipawn value
-                return 10000 * (1 if eval_dict['value'] > 0 else -1)
-            return 0
-            import re
-            from typing import Optional
+        return results, self.blunder, self.not_blunder
 
-            def time_to_seconds(time_str: str) -> int:
-                """Convert time string to seconds."""
-                parts = time_str.split(':')
-                if len(parts) == 3:
-                    return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-                elif len(parts) == 2:
-                    return int(parts[0]) * 60 + int(parts[1])
-                else:
-                    return int(parts[0])
+    @staticmethod
+    def get_eval_value(eval_dict):
+        """Convert Stockfish evaluation to numerical value"""
+        if eval_dict['type'] == 'cp':
+            return eval_dict['value']
+        elif eval_dict['type'] == 'mate':
+            # Convert mate score to high centipawn value
+            return 10000 * (1 if eval_dict['value'] > 0 else -1)
+        return 0
