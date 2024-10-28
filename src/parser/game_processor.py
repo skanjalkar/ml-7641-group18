@@ -3,7 +3,7 @@ import numpy as np
 from typing import Iterator
 
 from stockfish.models import Stockfish
-from config import MIN_MOVES, MOVE_SELECTION_PROBABILITY, MIN_CLOCK_TIME, BLUNDER_THRESHOLD, STOCKFISH_PATH
+from config import MIN_MOVES, MOVE_SELECTION_PROBABILITY, MIN_CLOCK_TIME, BLUNDER_THRESHOLD, STOCKFISH_PATH, BLUNDER_PROBABILITY
 from chess_utils import board_to_array, get_bin, create_8x8x17_board
 from time_utils import get_clock_time
 import stockfish
@@ -13,15 +13,14 @@ class GameProcessor:
         self.pgn_file = pgn_file
         self.stockfish = self.stockfish_initialize(stockfish_path=stockfish_path)
         self.game_count = 0
-        self.blunder_count = 0
 
     def stockfish_initialize(self, stockfish_path: str = STOCKFISH_PATH):
         stockfish = Stockfish(stockfish_path)
         stockfish.update_engine_parameters({
                 "Threads": 1,
                 "Hash": 128,
-                "Minimum Thinking Time": 10,
-                "Skill Level": 0
+                "Minimum Thinking Time": 0,
+                "Skill Level": 20
             }
         )
         return stockfish
@@ -30,18 +29,33 @@ class GameProcessor:
         with open(self.pgn_file) as pgn:
             while True:
                 game = chess.pgn.read_game(pgn)
+                # if elo not in range 1000-2000 for either white or black, skip the game
                 if game is None:
                     break
+
+                white_elo, black_elo = 0, 0
+                if ("WhiteElo" in game.headers):
+                    white_elo = int(game.headers["WhiteElo"])
+                if ("BlackElo" in game.headers):
+                    black_elo = int(game.headers["BlackElo"])
+
+                if (white_elo < 1000 or white_elo > 2000 or black_elo < 1000 or black_elo > 2000):
+                    continue
+
+                if "Bullet" in game.headers["Event"]:
+                    print("Skipping bullet game")
+                    continue
+
                 yield from self.process_game(game)
 
     def process_game(self, game: chess.pgn.Game) -> Iterator[tuple]:
-        if "Bullet" in game.headers["Event"]:
-            return
 
         board = game.board()
         self.game_count += 1
         print("Game count : ", self.game_count, "  Processing game....")
+        # print("Game Headers" , game.headers)
         move_count = 0
+        current_position_blunders = 0
 
         for node in game.mainline():
             move = node.move
@@ -68,7 +82,8 @@ class GameProcessor:
 
                 # Adjust sampling probability based on whether it's a blunder
                 should_sample = (
-                    np.random.random() < MOVE_SELECTION_PROBABILITY # normal sampling
+                    np.random.random() < MOVE_SELECTION_PROBABILITY or
+                    (is_blunder and np.random.random() < BLUNDER_PROBABILITY)
                 )
 
                 if should_sample:
@@ -79,10 +94,10 @@ class GameProcessor:
                     #     print("Yielding move that is not a blunder")
                     board_array = create_8x8x17_board(board)
                     ground_truth = is_blunder
-                    self.blunder_count += 1 if is_blunder else 0
+                    current_position_blunders = 1 if is_blunder else 0
 
                     # yield board_array, ground_truth, and elo
-                    yield_tuple = (board_array, ground_truth, int(elo), self.blunder_count)
+                    yield_tuple = (board_array, ground_truth, int(elo), current_position_blunders)
                     yield yield_tuple
             else:
                 board.push(move)

@@ -53,7 +53,6 @@ def main():
         processor = GameProcessor(PGN_FILE, STOCKFISH_PATH)
         print("Using default stockfish engine")
 
-    previous_blunder = 0
     final_blunder = defaultdict(int)
     for X, y, elo, blunder_count in processor.process_games():
         bin_name = get_bin(elo)
@@ -61,25 +60,26 @@ def main():
             X_buffers[bin_name].append(X)
             y_buffers[bin_name].append(y)
             z_buffers[bin_name].append(elo)
-            final_blunder[bin_name] = blunder_count
+            final_blunder[bin_name] += blunder_count
 
             # Check if this bin's buffer has reached CHUNK_SIZE
             if len(X_buffers[bin_name]) >= CHUNK_SIZE:
                 save_chunk(bin_name, X_buffers[bin_name], y_buffers[bin_name], z_buffers[bin_name], pgn_number)
-                print("Blunders in this chunk: ", blunder_count - previous_blunder)
+                print("Blunders in this chunk: ", final_blunder[bin_name])
                 # Reset this bin's buffers
                 X_buffers[bin_name] = []
                 y_buffers[bin_name] = []
                 z_buffers[bin_name] = []
-                previous_blunder = blunder_count
+                final_blunder[bin_name] = 0
 
 
 
     # Save remaining data in all buffers
     for bin_name in X_buffers:
-        print(f"Total Blunders in {bin_name}: {final_blunder[bin_name]}")
         if len(X_buffers[bin_name]) > 0:
             save_chunk(bin_name, X_buffers[bin_name], y_buffers[bin_name], z_buffers[bin_name], pgn_number)
+            print(f"Total Blunders in {bin_name} of size {len(X_buffers[bin_name])}: {final_blunder[bin_name]}")
+
 
 if __name__ == "__main__":
     main()
