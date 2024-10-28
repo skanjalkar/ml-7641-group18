@@ -17,7 +17,7 @@ class GameProcessor:
 
     @staticmethod
     def stockfish_initialize(stockfish_path: str = STOCKFISH_PATH):
-        stockfish = Stockfish()
+        stockfish = Stockfish(STOCKFISH_PATH)
         stockfish.update_engine_parameters({
                 "Threads": 1,
                 "Hash": 128,
