@@ -8,4 +8,4 @@ PGN_FILE_PATH = DATA_DIR / "pgn-data"
 STOCKFISH_PATH = "/usr/games/stockfish"
 STOCKFISH_PATH_CUSTOM = "../Stockfish/src/stockfish"
 BLUNDER_THRESHOLD = 200
-CHUNK_SIZE = 1000
+CHUNK_SIZE = 512
