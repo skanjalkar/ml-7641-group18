@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import argparse
 import json
+import sys
 
 # ML model related imports.
 from sklearn.ensemble import RandomForestClassifier
@@ -13,6 +14,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
 
 # Global variables go here.
 SCRIPT_ARGS = None
@@ -25,10 +28,11 @@ DATA_PATH = None
 parser = argparse.ArgumentParser(description="Add arguments for train the classical ML model")
 
 # Define named arguments
-parser.add_argument('--data_path', type=str, required=True, help="Relative path to data directory")
-parser.add_argument('--elo_list', type=str, required=True, help="Comma seperated ELO ranges to process.")
+parser.add_argument('--data_path', type=str, default="data", help="Relative path to data directory")
+parser.add_argument('--elo_list', type=str, default="1400-1500", help="Comma seperated ELO ranges to process.")
 parser.add_argument('--model', type=str, default='rf', help="Use rf for RandomForest, lgr for Logistic regression, svc for Support Vector Classifier")
-parser.add_argument('--config', type=str, required=True, help="Specify hyperparameters to use.")
+parser.add_argument('--config', type=str, default='random_forest_config.json', help="Specify hyperparameters to use.")
+parser.add_argument('--grid_search_cv', type=str, default=False, help="Try to find the best hyperparameters by setting the params config.")
 parser.add_argument('--cv', type=str, default=False, help="Set true for 5 fold cross validation")
 # Parse
 SCRIPT_ARGS = parser.parse_args()
@@ -39,6 +43,7 @@ DIR_LIST = SCRIPT_ARGS.elo_list.split(',')
 PERFORM_CV = SCRIPT_ARGS.cv
 MODEL = SCRIPT_ARGS.model
 CONFIG = SCRIPT_ARGS.config
+GRID_SEARCH_CV = SCRIPT_ARGS.grid_search_cv
 print("Elo directories that script will process: %s" % str(DIR_LIST))
 
 
@@ -129,6 +134,13 @@ def get_accuracy(model, X, Y):
     y_pred = model.predict(X)
     return accuracy_score(Y, y_pred)
 
+def get_confusion_matrix(model, X, Y):
+    """
+    Helper method to print the confusion matrix
+    """
+    y_pred = model.predict(X)
+    return confusion_matrix(Y, y_pred)
+
 
 if __name__ == "__main__":
     X_files, Y_files = get_files_to_process()
@@ -147,8 +159,29 @@ if __name__ == "__main__":
     with open(CONFIG, 'r') as file:
         hyper_config = json.load(file)
 
+    if GRID_SEARCH_CV:
+        # param_grid = { 
+        #     'n_estimators': [200,300,400],
+        #     'max_depth' : [6,8,10,12,14,16],
+        #     'min_samples_split':[2,3,4,5]
+        # }
+        param_grid = {
+            "penalty": ["l2"],
+            "C": [1.0, 1.5, 2],
+            "solver": ["lbfgs"],
+            "max_iter": [100]
+        }
+        #model = RandomForestClassifier(random_state=7)
+        model = LogisticRegression()
+        CV_rfc = GridSearchCV(estimator=model, param_grid=param_grid, cv= 5)
+        CV_rfc.fit(X,Y)
+        print("Getting the best hyperparameters.")
+        print(CV_rfc.best_params_)
+        sys.exit()
+
     if PERFORM_CV:
-        get_cv_score_for_model(X, Y, hyper_config)
+        scores = get_cv_score_for_model(X, Y, hyper_config)
+        print("CV scores: ", scores)
 
     # Split the data into train and test(80% train 20% test).
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=3)
@@ -165,3 +198,6 @@ if __name__ == "__main__":
         raise Exception("Invalid model parameter passed: ", model)
     print("Training accuracy: ", get_accuracy(model, X_train, Y_train))
     print("Test accuracy: ", get_accuracy(model, X_test, Y_test))
+
+    print("Train prediction confusion matrix: \n", get_confusion_matrix(model, X_train, Y_train))
+    print("Test prediction confusion matrix: \n", get_confusion_matrix(model, X_test, Y_test))
