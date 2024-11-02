@@ -164,3 +164,5 @@ cython_debug/
 *.npy
 ml
 scripts/*zst
+*.pgn
+*.o
