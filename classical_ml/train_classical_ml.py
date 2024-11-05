@@ -38,7 +38,7 @@ parser.add_argument('--cv', type=str, default=False, help="Set true for 5 fold c
 SCRIPT_ARGS = parser.parse_args()
 
 ############################################
-DATA_PATH = SCRIPT_ARGS.data_path
+DATA_PATH = SCRIPT_ARGS.data_path.split(',')
 DIR_LIST = SCRIPT_ARGS.elo_list.split(',')
 PERFORM_CV = SCRIPT_ARGS.cv
 MODEL = SCRIPT_ARGS.model
@@ -57,16 +57,21 @@ def get_files_to_process():
     """
     X_files = []
     Y_files = []
-    # Iterate through each directory
-    for entry in DIR_LIST:
-        dir_name = os.path.join(DATA_PATH, entry)
-        for filename in os.listdir(dir_name):
-            # Get the X files
-            if filename[0] == 'X':
-                X_files.append(os.path.join(dir_name, filename))
-                # Get the corresponding y file
-                y_file = 'y' + filename[1:]
-                Y_files.append(os.path.join(dir_name, y_file))
+    for data_path in DATA_PATH:
+        print("Compiling data for: ", data_path)
+        total_files = 0
+        # Iterate through each directory
+        for entry in DIR_LIST:
+            dir_name = os.path.join(data_path, entry)
+            for filename in os.listdir(dir_name):
+                # Get the X files
+                if filename[0] == 'X':
+                    X_files.append(os.path.join(dir_name, filename))
+                    # Get the corresponding y file
+                    y_file = 'y' + filename[1:]
+                    Y_files.append(os.path.join(dir_name, y_file))
+                    total_files = total_files + 1
+        print("Number of files:", total_files)
     return X_files, Y_files
 
 def get_numpy_data_from_files(X_files, Y_files):
@@ -160,22 +165,27 @@ if __name__ == "__main__":
         hyper_config = json.load(file)
 
     if GRID_SEARCH_CV:
-        # param_grid = { 
-        #     'n_estimators': [200,300,400],
-        #     'max_depth' : [6,8,10,12,14,16],
-        #     'min_samples_split':[2,3,4,5]
-        # }
-        param_grid = {
-            "penalty": ["l2"],
-            "C": [1.0, 1.5, 2],
-            "solver": ["lbfgs"],
-            "max_iter": [100]
-        }
-        #model = RandomForestClassifier(random_state=7)
-        model = LogisticRegression()
+        if MODEL == 'rf':
+            param_grid = {
+                'n_estimators': [200,300,400],
+                'max_depth' : [6,8,10,12,14,16],
+                'min_samples_split':[2,3,4,5]
+            }
+            model = RandomForestClassifier(random_state=7)
+        elif MODEL == 'lgr':
+            param_grid = {
+                "penalty": ["l2"],
+                "C": [1.0, 1.5, 2],
+                "solver": ["lbfgs"],
+                "max_iter": [100]
+            }
+            model = LogisticRegression()
+        else:
+            raise Exception("INVALID MODEL FOR GRID SEARCH CV")
+
         CV_rfc = GridSearchCV(estimator=model, param_grid=param_grid, cv= 5)
         CV_rfc.fit(X,Y)
-        print("Getting the best hyperparameters.")
+        print("Getting the best hyperparameters for:", MODEL)
         print(CV_rfc.best_params_)
         sys.exit()
 
