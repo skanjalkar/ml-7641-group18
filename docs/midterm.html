@@ -176,34 +176,67 @@
                         <strong>Data Preprocessing:</strong>
                         <ul>
                             <li>
+                                Download dataset from Lichess and extract PGN:
+                                The system downloads large datasets of chess
+                                games from Lichess's public database. These
+                                datasets contain standard rated chess games
+                                played during specific months and are initially
+                                compressed to save storage space. The data comes
+                                in a special compressed format (.zst) which
+                                needs to be unzipped before it can be used. The
+                                downloading and unzipping processes happen
+                                simultaneously for multiple files to save time,
+                                with visual indicators showing the progress of
+                                both operations. Once uncompressed, the data
+                                becomes available in PGN format, which is the
+                                standard format for recording chess games,
+                                containing all the moves and relevant game
+                                information.
+                            </li>
+                            <li>
+                                Stockfish Engine Integration: To determine what
+                                constitutes a blunder, the system leverages
+                                Stockfish, one of the strongest chess engines
+                                available. For each position, Stockfish
+                                evaluates both the current position and the
+                                position after a move is made. The difference in
+                                these evaluations, measured in centipawns
+                                (1/100th of a pawn's value), reveals how much
+                                the move weakened the position. If this
+                                difference exceeds a certain threshold, the move
+                                is classified as a blunder, providing our ground
+                                truth for training the model.
+                            </li>
+                            <li>
                                 Position Extraction: Convert PGN data to 8x8x17
                                 grid representations using
-                                <code>python-chess</code>.
+                                <code>python-chess</code>. 17 channels are
+                                represent the following: - Pieces (12): One
+                                channel per piece type/color (6 white, 6 black)
+                                - Castling (4): Legal castling options for both
+                                players - Turn (1): Active player indicator
+                                (white/black)
                             </li>
                             <li>
-                                Data Filtering: Remove non-representative
-                                positions (e.g., openings, time-pressure moves).
-                            </li>
-                            <li>
-                                Balance Adjustment: Oversample blunders moves to
-                                ensure even representation.
+                                Data Filtering: - Process games where both
+                                players are rated 1000-2000 Elo - Skip bullet
+                                games and moves with insufficient clock time -
+                                For each position: * Evaluate position with
+                                Stockfish before and after move * Mark as
+                                blunder if eval difference > 3 centipawns *
+                                Sample blunders with 1/4 probability * Sample
+                                non-blunders with 1/32 probability - Output:
+                                Board state (8x8x17), blunder label (0/1),
+                                player Elo, position blunder count This creates
+                                a balanced dataset between blunder/non-blunder
+                                positions while maintaining realistic game
+                                situations.
                             </li>
                         </ul>
                     </li>
                     <li>
                         <strong>Machine Learning Approach:</strong>
                         <ul>
-                            <li>
-                                <p>
-                                    Variational Autoencoder (VAE): This
-                                    unsupervised model generates dense,
-                                    low-dimensional representations of chess
-                                    positions. It captures spatial relationships
-                                    in board states without requiring labeled
-                                    data, using an encoder-decoder architecture
-                                    trained on chess positions.
-                                </p>
-                            </li>
                             <li>
                                 <p>
                                     Random Forest: This model predicts
@@ -216,14 +249,10 @@
                                 </p>
                             </li>
                             <li>
-                                <p>
-                                    Multi-Layer Perceptron (MLP): This model
-                                    captures complex patterns in chess
-                                    decision-making. Capable of learning
-                                    hierarchical features from raw board
-                                    representations, it employs multiple hidden
-                                    layers trained on position-move pairs.
-                                </p>
+                                <p>Variational Autoencoder (VAE): TODO</p>
+                            </li>
+                            <li>
+                                <p>Multi-Layer Perceptron (MLP): TODO.</p>
                             </li>
                         </ul>
                     </li>
@@ -235,51 +264,27 @@
                 <h2>(Potential) Results and Discussion</h2>
                 <ul>
                     <li>
+                        <strong>Visualizations:</strong>
+                        <ul>
+                            TODO
+                        </ul>
+                    </li>
+                    <li>
                         <strong>Quantitative Metrics:</strong>
                         <ul>
-                            <li>VAE: Reconstruction loss</li>
-                            <li>
-                                Random Forest and MLP: Accuracy and Top-k
-                                accuracy
-                            </li>
+                            TODO
                         </ul>
                     </li>
                     <li>
-                        <strong>Project Goals:</strong>
+                        <strong>Analysis of ML Model</strong>
                         <ul>
-                            <li>
-                                Develop a blunder predictor chess engine
-                                simulating human-like play across skill levels
-                            </li>
-                            <li>
-                                Capture nuances of human decision-making in
-                                chess
-                            </li>
+                            TODO
                         </ul>
                     </li>
                     <li>
-                        <strong>Expected Results:</strong>
+                        <strong>Next Steps</strong>
                         <ul>
-                            <li>
-                                VAE: Low reconstruction loss, indicating
-                                accurate position encoding
-                            </li>
-                            <li>
-                                Random Forest and MLP: High accuracy in
-                                predicting human moves
-                            </li>
-                            <li>
-                                Improved top-k accuracy for human-like move
-                                predictions
-                            </li>
-                            <li>
-                                Valid, human-like moves generated for each input
-                                position
-                            </li>
-                            <li>
-                                Varied play styles and strategic depth across
-                                Elo ratings
-                            </li>
+                            TODO
                         </ul>
                     </li>
                 </ul>
@@ -310,6 +315,11 @@
                         deep neural networks and tree search." nature 529.7587
                         (2016): 484-489.
                     </li>
+                    <li>
+                        Pgn-extract
+                        [https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/],
+                        which can be processed in parallel.
+                    </li>
                 </ol>
             </div>
 
@@ -335,51 +345,26 @@
                     <tbody>
                         <tr>
                             <td>Shreyas Kanjalkar</td>
-                            <td>
-                                Meetings, Research Proposals, Github Pages,
-                                Intro/Background
-                            </td>
+                            <td>Data Preprocessing, Meetings, Code Review</td>
                         </tr>
                         <tr>
                             <td>Harshil Vagadia</td>
-                            <td>
-                                Meetings, Research Proposals, Data Preprocessing
-                                Methods, ML Algorithms
-                            </td>
+                            <td>TODO</td>
                         </tr>
                         <tr>
                             <td>Miloni Mittal</td>
-                            <td>
-                                Meetings, Research Proposal, Results and
-                                Discussion
-                            </td>
+                            <td>TODO</td>
                         </tr>
                         <tr>
                             <td>Jineet Hemalkumar Desai</td>
-                            <td>
-                                Meetings, Proposal Presentation, Proposal Video
-                            </td>
+                            <td>TODO</td>
                         </tr>
                         <tr>
                             <td>Lohith Kariyapla Siddalingappa</td>
-                            <td>
-                                Problem Definition, Problem Motivation &
-                                Gantt-Chart
-                            </td>
+                            <td>TODO</td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-
-            <!-- Video Presentation Section -->
-            <div class="section">
-                <h2>Video Presentation</h2>
-                <p>
-                    Watch the proposal video here:
-                    <a href="https://youtu.be/ttWXyr9gcPA" target="_blank"
-                        >Proposal Video</a
-                    >
-                </p>
             </div>
 
             <!-- GitHub Repository Section -->
