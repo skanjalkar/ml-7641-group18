@@ -1,0 +1,6 @@
+{
+    "C": 1.0,
+    "kernel": "rbf",
+    "degree": 3,
+    "gamma": "scale"
+}
