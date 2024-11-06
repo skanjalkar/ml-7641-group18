@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
         <title>Machine Learning Project Proposal</title>
         <style>
             body {
@@ -94,200 +95,114 @@
             <!-- Introduction Section -->
             <div class="section">
                 <h2>Introduction/Background</h2>
-                <ul>
-                    <li><strong>Literature Review</strong></li>
+                    <strong>Literature Review</strong>
                     <p>
-                        Acher and Esnault (2016) [1] conducted large-scale chess
-                        analysis using Stockfish, revealing patterns in human
-                        decision-making. Silver et al. (2017) [2] introduced
-                        AlphaZero, an AI that achieved superhuman performance in
-                        chess through self-play, combining deep reinforcement
-                        learning with Monte Carlo Tree Search. McIlroy-Young et
-                        al. (2020) [3] developed Maia, an AI model fine-tuned to
-                        mimic human chess play, including mistakes, for more
-                        relatable and educational purposes.
+                        <ul>
+                        <li>Acher and Esnault (2016) [1] conducted large-scale chess analysis using Stockfish, highlighting the importance of chess engines in understanding human decision-making. Their work identified that computation time of chess engines is a crucial bottleneck in wide-scale interaction between humans and chess engines.</li>
+                        <li>Silver et al. (2017) [2] introduced AlphaZero, an AI that achieved superhuman performance in chess through self-play, combining deep reinforcement learning with Monte Carlo Tree Search. Their work showed deep learning models can be integrated into chess analysis and beat other state-of-the-art methods.</li>
+                        <li>McIlroy-Young et al. (2020) [3] developed Maia, an AI model fine-tuned to mimic human chess play, including mistakes, for more relatable and educational purposes. Theirs was one of the first work to use machine learning methods to understand human chess play.</li>
+                        </ul>
                     </p>
 
-                    <li>
-                        <strong>Dataset Description:</strong>A standard Lichess
-                        dataset contains chess game information such as player
-                        IDs, ratings, game results (win, loss, or draw), time
-                        control, and termination reasons (e.g., resignation or
-                        checkmate). Each game is identified by a unique ID and
-                        includes metadata like the opening name and ECO code,
-                        date and time, and the move list in Portable Game
-                        Notation (PGN). Some datasets may also include move
-                        timestamps, annotations for notable moves, or "optimal"
-                        engine evaluations at certain moves. Optional player
-                        metadata, such as titles (GM, IM) may also be available.
-                    </li>
-                    <li>
+                    <strong>Dataset Description:</strong>
+                        <p>
+                            A standard Lichess dataset contains chess game information such as player IDs, ratings, game results (win, loss, or draw), time control, and termination reasons (e.g., resignation or checkmate). Each game is identified by a unique ID and includes metadata like the opening name and ECO code, date and time, and the move list in Portable Game Notation (PGN). Some datasets may also include movetimestamps, annotations for notable moves, or "optimal" engine evaluations at certain moves. Optional player metadata, such as titles (GM, IM) may also be available.
+                        </p>
+
                         <strong>Dataset Link:</strong>
                         <a
                             href="https://database.lichess.org/#standard_games"
-                            target="_blank"
-                            >Link to Dataset</a
-                        >
-                    </li>
-                </ul>
+                            target="_blank">Link to Dataset</a>
             </div>
 
             <!-- Problem Definition Section -->
             <div class="section">
                 <h2>Problem Definition</h2>
-                <ul>
-                    <li>
-                        <strong>Problem Statement:</strong> Current chess tools
-                        excel at suggesting the best moves but lack the
-                        capability to warn players about the likelihood of
-                        making blunders in specific positions, particularly
-                        crucial for casual players rated 1000-2000 Elo. There is
-                        a need for a specialized chess engine that can assess
-                        and communicate the "blunder risk" of any given
-                        position, taking into account position complexity and
-                        common mistake patterns at different skill levels. This
-                        tool would create crucial awareness for players before
-                        making critical decisions, helping them approach risky
-                        positions with appropriate caution.
-                    </li>
+                    <strong>Problem Statement:</strong>
+                    <p>
+                        Since chess engines achieved superhuman performance, they have been extensively used as analytical tools in human chess play. Current chess tools excel at suggesting the best moves but lack the capability to warn players about the likelihood of making blunders in specific positions. There is a need for a such a specialized chess tool that can assess and communicate the "blunder risk" of any given position, taking into account position complexity and common mistake patterns at different skill levels. This tool would create crucial awareness for players before making critical decisions, helping them approach risky positions with appropriate caution.
+                    </p>
+                    <p>
+                        More formally, we want to develop a model, say \(M\), that can accept a chess position \(p \in P \) and predict a label \( M(p) \in \{0, 1\} \) where 0 indicates that a human player is unlikely to make a blunder in position \(p\) and 1 indicates that a human player is likely to make a blunder in position \(p\). The model \(M\) will be trained on a dataset of chess positions with labels indicating whether a blunder was made in that position or not.
+                    </p>
 
-                    <li>
-                        <strong>Motivation:</strong> The recent chess boom,
-                        accelerated by the pandemic, has highlighted a critical
-                        gap in chess tools for casual players. While traditional
-                        chess engines focus on finding perfect moves, they don't
-                        help players understand when they're in dangerous
-                        positions likely to cause blunders. A blunder prediction
-                        system would serve as a crucial awareness tool,
-                        especially for newer players who often make game-losing
-                        mistakes without recognizing the risks. This addresses
-                        the growing need for practical tools that help prevent
-                        catastrophic errors rather than just suggesting optimal
-                        moves.
-                    </li>
-                </ul>
+                    <strong>Motivation:</strong>
+                    <p>
+                        The recent chess boom, accelerated by the pandemic, has highlighted a critical gap in chess tools for casual players. While traditional chess engines focus on finding perfect moves, they don't help players understand when they're in dangerous positions likely to cause blunders. This is because making a blunder is an inherently "human" trait and chess engines are typically tuned to achieve perfect (superhuman) play. Further, Maia [3] shows that artificially restricting superhuman chess engines (like capping the depth in tree-search algorithms) takes the models even farther from human behavior. A blunder prediction system would serve as a crucial learning tool, especially for newer players who often make game-losing mistakes without recognizing the risks. This addresses the growing need for practical learning tools that help prevent catastrophic errors rather than just suggesting optimal moves.
+                    </p>
             </div>
 
             <!-- Methods Section -->
             <div class="section">
                 <h2>Methods</h2>
-                <ul>
-                    <li>
-                        <strong>Data Preprocessing:</strong>
+                    <strong>Data Preprocessing:</strong>
+                        We have access to a lot of chess games, but it needs to be systematically converted and labelled into chess positions and blunder labels. The following steps exhaustively detail the data preprocessing pipeline:
                         <ul>
                             <li>
-                                Download dataset from Lichess and extract PGN:
-                                The system downloads large datasets of chess
-                                games from Lichess's public database. These
-                                datasets contain standard rated chess games
-                                played during specific months and are initially
-                                compressed to save storage space. The data comes
-                                in a special compressed format (.zst) which
-                                needs to be unzipped before it can be used. The
-                                downloading and unzipping processes happen
-                                simultaneously for multiple files to save time,
-                                with visual indicators showing the progress of
-                                both operations. Once uncompressed, the data
-                                becomes available in PGN format, which is the
-                                standard format for recording chess games,
-                                containing all the moves and relevant game
-                                information.
+                                <b>Download dataset from Lichess and extract PGN:</b> The system downloads large datasets of chess games from Lichess's public database. These datasets contain standard rated chess games played during specific months and are initially compressed to save storage space. The data comes in a special compressed format (.zst) which needs to be unzipped before it can be used. The downloading and unzipping processes happen simultaneously for multiple files to save time, with visual indicators showing the progress of both operations. Once uncompressed, the data becomes available in PGN format, which is the standard format for recording chess games, containing all the moves and relevant game information.
                             </li>
                             <li>
-                                Stockfish Engine Integration: To determine what
-                                constitutes a blunder, the system leverages
-                                Stockfish, one of the strongest chess engines
-                                available. For each position, Stockfish
-                                evaluates both the current position and the
-                                position after a move is made. The difference in
-                                these evaluations, measured in centipawns
-                                (1/100th of a pawn's value), reveals how much
-                                the move weakened the position. If this
-                                difference exceeds a certain threshold, the move
-                                is classified as a blunder, providing our ground
-                                truth for training the model.
+                                <b>Stockfish Engine Integration:</b> To determine what constitutes a blunder, the system leverages Stockfish, one of the strongest chess engines available. For each position, Stockfish evaluates both the current position and the position after a move is made. The difference in these evaluations, measured in centipawns (1/100th of a pawn's value), reveals how much the move weakened the position. If this difference exceeds a certain threshold, the move is classified as a blunder, providing our ground truth for training the model.
                             </li>
                             <li>
-                                Position Extraction: Convert PGN data to 8x8x17
-                                grid representations using
-                                <code>python-chess</code>. 17 channels are
-                                represent the following: - Pieces (12): One
-                                channel per piece type/color (6 white, 6 black)
-                                - Castling (4): Legal castling options for both
-                                players - Turn (1): Active player indicator
-                                (white/black)
+                                <b>Position Extraction:</b> Convert PGN data to 8x8x17 grid representations using <code>python-chess</code>. 17 channels are represent the following: Pieces (12): One channel per piece type/color (6 white, 6 black); Castling (4): Legal castling options for both players; Turn (1): Active player indicator (white/black)
                             </li>
                             <li>
-                                Data Filtering: - Process games where both
-                                players are rated 1000-2000 Elo - Skip bullet
-                                games and moves with insufficient clock time -
-                                For each position: * Evaluate position with
-                                Stockfish before and after move * Mark as
-                                blunder if eval difference > 3 centipawns *
-                                Sample blunders with 1/4 probability * Sample
-                                non-blunders with 1/32 probability - Output:
-                                Board state (8x8x17), blunder label (0/1),
-                                player Elo, position blunder count This creates
-                                a balanced dataset between blunder/non-blunder
-                                positions while maintaining realistic game
-                                situations.
+                                <b>Data Filtering:</b> We process games where both players are rated 1000-2000 Elo but skip bullet games and moves with insufficient clock time. For each position we evaluate it with Stockfish before and after move and mark it as blunder if eval difference > 3 centipawns. To ensure roughly equal blunders and non-blunders, we sample blunders with 1/4 probability and non-blunders with 1/32 probability. Thus the output is board state (8x8x17), blunder label (0/1), and player Elo (a single number measuring the strength of a player). This creates a balanced dataset of ~2.8M blunders and ~4.2M non-blunders.
                             </li>
                         </ul>
-                    </li>
-                    <li>
-                        <strong>Machine Learning Approach:</strong>
-                        <ul>
-                            <li>
-                                <p>
-                                    Random Forest: This model predicts
-                                    human-like moves based on positional
-                                    features. Efficient for large datasets and
-                                    adept at handling non-linear relationships,
-                                    it uses an ensemble of decision trees
-                                    trained on VAE-encoded positions and move
-                                    labels.
-                                </p>
-                            </li>
-                            <li>
-                                <p>Variational Autoencoder (VAE): TODO</p>
-                            </li>
-                            <li>
-                                <p>Multi-Layer Perceptron (MLP): TODO.</p>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+                    <strong>Machine Learning Approach:</strong>
+                        <p>
+                            As described in the problem statement, our setup is that of a binary classification problem where we aim to predict whether a given chess position is likely to result in a blunder. As a first step, we implement two classical machine learning models - logistic regression and random forest. We use <code>sklearn</code> library to implement the models. We divide the dataset into training and testing sets and evaluate the models based on accuracy,and confusion matrix. The hyperparameters of the models are tuned using grid search and cross-validation.
+                        </p>
             </div>
 
             <!-- Results Section -->
             <div class="section">
-                <h2>(Potential) Results and Discussion</h2>
-                <ul>
-                    <li>
-                        <strong>Visualizations:</strong>
-                        <ul>
+                <h2>Results and Discussion</h2>
+                    <strong>Visualizations:</strong>
+                        <p>
                             TODO
-                        </ul>
-                    </li>
-                    <li>
-                        <strong>Quantitative Metrics:</strong>
-                        <ul>
-                            TODO
-                        </ul>
-                    </li>
-                    <li>
-                        <strong>Analysis of ML Model</strong>
-                        <ul>
-                            TODO
-                        </ul>
-                    </li>
-                    <li>
-                        <strong>Next Steps</strong>
-                        <ul>
-                            TODO
-                        </ul>
-                    </li>
-                </ul>
+                        </p>
+                    <strong>Quantitative Metrics:</strong>
+                        <p>
+                            After fitting each model, we evaluate them for accuracy on a held out test set. We run two experiments - one where we train the model on the entire dataset (1000-2000 Elo) and another where we train the model on a subset of the dataset (1600-1700 Elo). The purpose of this experiment is to understand whether there is a significant distribution shift of blunders as Elo changes. We also compare our results with Maia [3] to understand how well our model performs.
+                            <table>
+                                <tr>
+                                    <td>Model</td>
+                                    <td>1000-2000 Elo</td>
+                                    <td>1600-1700 Elo</td>
+                                </tr>
+                                <tr>
+                                    <td>Maia (Random Forest)</td>
+                                    <td>56.4%</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Ours (Logistic Regression)</td>
+                                    <td>66.3%</td>
+                                    <td>66.8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Ours (Random Forest)</td>
+                                    <td>61.9%</td>
+                                    <td>63.9%</td>
+                                </tr>
+                            </table>
+                        </p>
+                    <strong>Analysis of ML Model</strong>
+                        <p>
+                            The accurancy results above shows that our model performs better than Maia [3] on the entire dataset. Further, the model performs slightly better on the restricted data. This is to be expected as the variations in blunders are less pronounced in the restricted dataset. Players of similar strength tend to perform the same kind of blunders, which makes it easier for the model to learn the patterns. However, The performance is only marginally above a random model (50%). This suggests that the model is not learning the underlying patterns of blunders well. The reasons why and steps to improve are discussed in the next section.
+                        </p>
+                    <strong>Next Steps</strong>
+                        <p>
+                            We have identified a few areas to improve the performance:
+                            <ul>
+                                <li><b>Feature Engineering:</b> Classical ML algorithms are not suited to extract features from sparse representations like board positions. We believe manually extracting chess features (like number of pieces on each side etc.) could help.</li>
+                                <li><b>Feature Reduction:</b> The current feature space of of dimension 8x8x17, many of which are highly correlated. Therefore, reducing the feature space using some unsupervised algorithm like PCA should help in performance</li>
+                                <li><b>Model Complexity</b> Deep Learning models liek MLP and CNN have shown extraordinary ability when operating in sparse feature space. Other recent works [2, 3] have shown success with deep learning model. Ideally these models should be able to understand the pattern of blunderous positions.</li>
+                            </ul>
+                        </p>
             </div>
 
             <!-- References Section -->
@@ -349,19 +264,19 @@
                         </tr>
                         <tr>
                             <td>Harshil Vagadia</td>
-                            <td>TODO</td>
+                            <td>Report, Code Review, Meetings</td>
                         </tr>
                         <tr>
                             <td>Miloni Mittal</td>
-                            <td>TODO</td>
+                            <td>Unsupervised Learning Algorithms (in-progress), Report, Meetings</td>
                         </tr>
                         <tr>
                             <td>Jineet Hemalkumar Desai</td>
-                            <td>TODO</td>
+                            <td>Classical ML Algorithms, Meetings</td>
                         </tr>
                         <tr>
                             <td>Lohith Kariyapla Siddalingappa</td>
-                            <td>TODO</td>
+                            <td>Deep Learning Algorithms (in-progress), Meetings</td>
                         </tr>
                     </tbody>
                 </table>
