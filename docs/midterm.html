@@ -84,6 +84,36 @@
                 bottom: 0;
                 width: 100%;
             }
+            .gallery {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .group {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 49%; /* Two images per row */
+                box-sizing: border-box;
+                border: 2px solid #333; /* Border around each group */
+                padding: 10px; /* Space between border and images */
+                border-radius: 8px; /* Rounded corners for the border */
+
+            }
+            .image-row {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+            .caption {
+                text-align: center;
+                font-weight: bold;
+                margin-top: 5px;
+            }
+            img {
+                width: 100%;
+                max-width: 100%; /* Adjusts image size */
+            }
         </style>
     </head>
     <body>
@@ -161,9 +191,40 @@
             <div class="section">
                 <h2>Results and Discussion</h2>
                     <strong>Visualizations:</strong>
-                        <p>
-                            TODO
-                        </p>
+                    <div class="gallery">
+                        <!-- Group 1 -->
+                        <div class="group">
+                            <div class="image-row">
+                                <div>
+                                    <img src="images/non_blunder_before.jpeg" alt="non_blunder_before">
+                                    <p class="caption">Before Move</p>
+                                </div>
+                                <div>
+                                    <img src="images/non_blunder_after.jpeg" alt="non_blunder_after">
+                                    <p class="caption">After Move</p>
+                                </div>
+                            </div>
+                            <p class="caption">Non-Blunder Position</p>
+                        </div>
+                    
+                        <!-- Group 2 -->
+                        <div class="group">
+                            <div class="image-row">
+                                <div>
+                                    <img src="images/blunder_before.jpeg" alt="blunder_before">
+                                    <p class="caption">Before Move</p>
+                                </div>
+                                <div>
+                                    <img src="images/blunder_after.jpeg" alt="blunder_after">
+                                    <p class="caption">After Move</p>
+                                </div>
+                            </div>
+                            <p class="caption">Blunder Position</p>
+                        </div>
+                    </div>
+                    <p>
+                        The visualizations above show the board positions before and after a move for a non-blunder and a blunder position. The non-blunder position is during a drawn-out endgame where the best moves are quite obvious (shuffling the king side-by-side). Here a human is quite unlikely to make a blunder. The blunder position is from a middle game where the best move (Kc3) is not so obvious. Weaker Elo humans are prone to make blunders here. Both of our models (logistic regression and random forest) are able to label each position correctly.
+                    </p>
                     <strong>Quantitative Metrics:</strong>
                         <p>
                             After fitting each model, we evaluate them for accuracy on a held out test set. We run two experiments - one where we train the model on the entire dataset (1000-2000 Elo) and another where we train the model on a subset of the dataset (1600-1700 Elo). The purpose of this experiment is to understand whether there is a significant distribution shift of blunders as Elo changes. We also compare our results with Maia [3] to understand how well our model performs.
