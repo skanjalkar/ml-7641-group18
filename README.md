@@ -35,13 +35,10 @@ pip install -r requirements.txt
 ```
 
 ## Download pgn files from lichess
-Download the pgn files from lichess using the following command (careful, this will download 2 files, each 30 gb worth of data).
-For convenience, there is a test.pgn file already in the data folder to test how the parser works.
-
 ```bash
 python3 ./scripts/download_games_torrent.py
 ```
-
+WARNING: This will download 2 files, each 30 gb worth of data. For convenience, there is a test.pgn file already in the data folder to test how the parser works.
 ## Stockfish Engine Setup
 
 #### If working on Pace:
@@ -63,12 +60,10 @@ which stockfish
 
 ## Parsing the code
 
-### Convert large pgn to multiple small pgn files
+### Convert large pgn to multiple small pgn files using pgn extract library
 
-The dataset gives us only one pgn file with millions of games, and with the way the python-chess library operates, it is difficult to make use of multi-threading to process dataset faster.
-So, we split the large pgn file into multiple smaller pgn files using pgn-extract library[https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/], which can be processed in parallel.
+pgn-extract library [https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/]
 
-To split the large pgn file into multiple smaller pgn files, run the following command:
 ```bash
 cd ./pgn-extract && make clean && make
 ./pgn-extract -#<num_games_per_file> -osplit <path_to_pgn_file>
@@ -93,12 +88,7 @@ Once you have the resources, run the following command to parse the pgn files an
 ./parse.sh
 ```
 
-This will ask you the upper limit (inclusive!) on the number of files (should be equal to the number of cpu cores you have on pace) you want to parse. It expects file to be named 1.pgn 2.pgn etc.
-
-For each game, it iterates through the moves, considering only those that meet certain criteria:
-- the game has progressed beyond a minimum number of moves
-- the move is randomly selected based on a probability
-- there's sufficient clock time remaining.
+This will ask you the upper limit (inclusive!) on the number of files (should be equal to the number of cpu cores you have on pace) you want to parse.
 
 ## Classical ML Models
 
