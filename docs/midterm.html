@@ -253,7 +253,31 @@
                         </p>
                     <strong>Analysis of ML Model</strong>
                         <p>
-                            The accurancy results above shows that our model performs better than Maia [3] on the entire dataset. Further, the model performs slightly better on the restricted data. This is to be expected as the variations in blunders are less pronounced in the restricted dataset. Players of similar strength tend to perform the same kind of blunders, which makes it easier for the model to learn the patterns. However, The performance is only marginally above a random model (50%). This suggests that the model is not learning the underlying patterns of blunders well. The reasons why and steps to improve are discussed in the next section.
+                            <!-- confusion matrix -->
+                            <table>
+                                <tr>
+                                    <td colspan="2" rowspan="2">Confusion Matrix</td>
+                                    <td colspan="2">Predicted</td>
+                                </tr>
+                                <tr>
+                                    <td>0</td>
+                                    <td>1</td>
+                                <tr>
+                                    <td rowspan="2">Actual</td>
+                                    <td>0</td>
+                                    <td>TN = 106k</td>
+                                    <td>FP = 20k</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>FN = 50k</td>
+                                    <td>TP = 30k</td>
+                                </tr>
+                            </table>
+                            <p class="caption">Confusion Matrix on 200k test points across all ELO for Logistic Regression (Best Model)</p>
+                            The accurancy results above shows that our model performs better than Maia [3] on the entire dataset. Further, the model performs slightly better on the restricted data. This is to be expected as the variations in blunders are less pronounced in the restricted dataset. Players of similar strength tend to perform the same kind of blunders, which makes it easier for the model to learn the patterns. Confusion matrix shows the model is leaning slightly towards non-blunder class. This is expected as even after upsampling there are more examples of non-blunder than blunder.
+                            
+                            However, The performance is only marginally above a random model (50%). This suggests that the model is not learning the underlying patterns of blunders well. The reasons why and steps to improve are discussed in the next section.
                         </p>
                     <strong>Next Steps</strong>
                         <p>
