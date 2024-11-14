@@ -2,15 +2,21 @@ import torch
 import numpy as np
 import os
 from torch.utils.data import Dataset, DataLoader, random_split
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from torch import nn
 from torch import optim
 import torch.nn.functional as F
 import argparse
+import matplotlib.pyplot as plt
+from sklearn.metrics import f1_score
 
 # Global variables go here.
 SCRIPT_ARGS = None
 DIR_LIST = []
 DATA_PATH = None
+
+all_preds = []
+all_labels = []
 
 #### Parse the parameters for ML model ####
 ###########################################
@@ -83,6 +89,32 @@ class ChessPositionDataset(Dataset):
         labels_tensor = torch.from_numpy(np.array(self.labels[idx].astype(np.int32))).long()  
         return features_tensor, labels_tensor
 
+def print_confusion_matrix(dataloader):
+    # run a random test on the dataset to get the predicted and label values
+    size = len(dataloader.dataset)
+    num_batches = len(dataloader)
+    model = ChessNet()
+    model.load_state_dict(torch.load('best_chessnet.pth'))
+    model.to(device)
+    model.eval()
+    test_loss, correct = 0, 0
+    with torch.no_grad():
+        for X, y in dataloader:
+            X, y = X.to(device), y.to(device)
+            X = X.permute(0, 3, 1, 2).contiguous()
+            y = y.reshape(-1,1).float()
+            pred = model(X)
+            predicted = (pred > 0.5).float()
+            correct += (predicted == y).type(torch.float).sum().item()
+            all_preds.extend(predicted.cpu().numpy())
+            all_labels.extend(y.cpu().numpy())
+    conf_matrix = confusion_matrix(all_labels, all_preds)
+    # Display the confusion matrix
+    ConfusionMatrixDisplay(conf_matrix).plot(cmap='Blues')
+    plt.title("Confusion Matrix")
+    plt.show()
+
+
 # Define neural network
 class ChessNet(nn.Module):
     def __init__(self):
@@ -90,7 +122,7 @@ class ChessNet(nn.Module):
         # Input channels = 17, output channels = 64
         self.conv_layers = nn.Sequential()
         in_channels = 17
-        out_channels = 64
+        out_channels = 256
         num_blocks = 6
         for i in range(num_blocks):
             self.conv_layers.add_module(f'conv{i+1}', nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1))
@@ -99,7 +131,10 @@ class ChessNet(nn.Module):
             in_channels = out_channels  # For next block
 
         # Fully connected layer
-        self.fc = nn.Linear(out_channels * 8 * 8, 1)  # Output is scalar (binary classification)
+        self.fc = nn.Sequential(
+            nn.Dropout(0.4),  # Dropout layer with 50% drop rate
+            nn.Linear(out_channels * 8 * 8, 1)
+        )
 
     def forward(self, x):
         x = self.conv_layers(x)
@@ -144,12 +179,17 @@ def test(dataloader, model, loss_fn):
             X = X.permute(0, 3, 1, 2).contiguous()
             y = y.reshape(-1,1).float()
             pred = model(X)
-            test_loss += loss_fn(pred, y).item()
             predicted = (pred > 0.5).float()
+            test_loss += loss_fn(predicted, y).item()
             correct += (predicted == y).type(torch.float).sum().item()
+            all_preds.extend(predicted.cpu().numpy())
+            all_labels.extend(y.cpu().numpy())
+    print("correct predicitons:", correct)
+    print("Total items", size)
     test_loss /= num_batches
     correct /= size
     print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    return test_loss
 
 if __name__ == "__main__":
     X_files, Y_files = get_files_to_process()
@@ -191,16 +231,45 @@ if __name__ == "__main__":
     criterion = nn.BCELoss()
 
     # Define the optimizer
-    initial_lr = 0.1
+    initial_lr = 0.00002
     optimizer = optim.Adam(model.parameters(), lr=initial_lr)
 
-    epochs = 10
+    best_loss = float('inf')
+    epochs_no_improve = 0
+    patience = 5  # Number of epochs to wait before early stopping
+    max_epochs = 100
 
-    for i in range(0,epochs):
-        print(f"Epoch {i}---------")
+    # Define a learning rate scheduler
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2, verbose=True)
+
+    for epoch in range(max_epochs):
+        print(f"Epoch {epoch+1}-----------------")
+        
+        # Train and evaluate each epoch
         train(train_loader, model, criterion, optimizer)
-        test(test_loader, model, criterion)
-    print("Done!")
+        test_loss = test(test_loader, model, criterion)
+        
+        # Check if there is an improvement
+        if test_loss < best_loss:
+            best_loss = test_loss
+            torch.save(model.state_dict(), 'best_chessnet.pth')  # Save the best model's parameters
+            epochs_no_improve = 0
+        else:
+            epochs_no_improve += 1
+        
+        # Adjust learning rate if no improvement
+        scheduler.step(test_loss)
+        
+        # Check for early stopping
+        if epochs_no_improve >= patience:
+            print("Early stopping triggered")
+            break
+
+    print("Training Complete")
+
+    print_confusion_matrix(test_loader)
+
+    
 
 
 
