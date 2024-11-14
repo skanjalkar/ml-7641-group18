@@ -9,7 +9,11 @@ import torch.nn.functional as F
 import argparse
 import matplotlib.pyplot as plt
 from sklearn.metrics import f1_score
+import yaml
 
+# Load the hyperparameters
+with open("hyperparameters.yaml", "r") as file:
+    hyperparameters = yaml.safe_load(file) 
 # Global variables go here.
 SCRIPT_ARGS = None
 DIR_LIST = []
@@ -91,6 +95,8 @@ class ChessPositionDataset(Dataset):
 
 def print_confusion_matrix(dataloader):
     # run a random test on the dataset to get the predicted and label values
+    all_preds = []
+    all_labels = []
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model = ChessNet()
@@ -110,20 +116,22 @@ def print_confusion_matrix(dataloader):
             all_labels.extend(y.cpu().numpy())
     conf_matrix = confusion_matrix(all_labels, all_preds)
     # Display the confusion matrix
-    ConfusionMatrixDisplay(conf_matrix).plot(cmap='Blues')
-    plt.title("Confusion Matrix")
-    plt.show()
+    TN, FP, FN, TP = conf_matrix.ravel()
+    # Print the confusion matrix in a visually pleasing format
+    print("Confusion Matrix:")
+    print(f"{'':<12}{'Predicted 0':<15}{'Predicted 1'}")
+    print(f"{'True 0':<12}{TN:<15}{FP}")
+    print(f"{'True 1':<12}{FN:<15}{TP}")
 
 
 # Define neural network
 class ChessNet(nn.Module):
     def __init__(self):
         super(ChessNet, self).__init__()
-        # Input channels = 17, output channels = 64
         self.conv_layers = nn.Sequential()
-        in_channels = 17
-        out_channels = 256
-        num_blocks = 6
+        in_channels = hyperparameters['model']['in_channels']
+        out_channels = hyperparameters['model']['out_channels']
+        num_blocks = hyperparameters['model']['num_blocks']
         for i in range(num_blocks):
             self.conv_layers.add_module(f'conv{i+1}', nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1))
             self.conv_layers.add_module(f'bn{i+1}', nn.BatchNorm2d(out_channels))
@@ -132,7 +140,7 @@ class ChessNet(nn.Module):
 
         # Fully connected layer
         self.fc = nn.Sequential(
-            nn.Dropout(0.4),  # Dropout layer with 50% drop rate
+            nn.Dropout(hyperparameters['model']['dropout_factor']),  # Dropout layer with 50% drop rate
             nn.Linear(out_channels * 8 * 8, 1)
         )
 
@@ -201,8 +209,8 @@ if __name__ == "__main__":
     chesspositions = ChessPositionDataset(X,Y)
 
     #split into test and train dataset
-    train_size = int(0.8 * len(chesspositions))  # 80% for training
-    test_size = len(chesspositions) - train_size  # Remaining 20% for testing
+    train_size = int(hyperparameters['training']['train_split'] * len(chesspositions))  
+    test_size = len(chesspositions) - train_size
 
     print(len(chesspositions), train_size, test_size)
 
@@ -210,8 +218,8 @@ if __name__ == "__main__":
     train_dataset, test_dataset = random_split(chesspositions, [train_size, test_size])
 
     # Create DataLoaders for both datasets
-    train_loader = DataLoader(train_dataset, batch_size=1024, shuffle=True, num_workers=4)
-    test_loader = DataLoader(test_dataset, batch_size=1024, shuffle=False, num_workers=4)
+    train_loader = DataLoader(train_dataset, batch_size=hyperparameters['model']['batch_size'], shuffle=True, num_workers=hyperparameters['model']['num_workers'])
+    test_loader = DataLoader(test_dataset, batch_size=hyperparameters['model']['batch_size'], shuffle=False, num_workers=hyperparameters['model']['num_workers'])
 
     device = (
         "cuda"
@@ -231,16 +239,16 @@ if __name__ == "__main__":
     criterion = nn.BCELoss()
 
     # Define the optimizer
-    initial_lr = 0.00002
+    initial_lr = hyperparameters['model']['initial_learning_rate']
     optimizer = optim.Adam(model.parameters(), lr=initial_lr)
 
     best_loss = float('inf')
     epochs_no_improve = 0
-    patience = 5  # Number of epochs to wait before early stopping
-    max_epochs = 100
+    patience = hyperparameters['model']['patience']# Number of epochs to wait before early stopping
+    max_epochs = hyperparameters['model']['epochs']
 
     # Define a learning rate scheduler
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2, verbose=True)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor= hyperparameters['scheduler']['factor'], patience= hyperparameters['scheduler']['patience'], verbose=True)
 
     for epoch in range(max_epochs):
         print(f"Epoch {epoch+1}-----------------")
@@ -256,9 +264,8 @@ if __name__ == "__main__":
             epochs_no_improve = 0
         else:
             epochs_no_improve += 1
-        
-        # Adjust learning rate if no improvement
-        scheduler.step(test_loss)
+            # Adjust learning rate if no improvement
+            scheduler.step(test_loss)
         
         # Check for early stopping
         if epochs_no_improve >= patience:
