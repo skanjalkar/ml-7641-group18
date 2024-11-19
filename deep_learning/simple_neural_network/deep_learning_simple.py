@@ -23,8 +23,6 @@ all_preds = []
 all_labels = []
 training_loss = []
 validation_loss = []
-training_accuracy = []
-validation_accuracy = []
 
 #### Parse the parameters for ML model ####
 ###########################################
@@ -103,7 +101,7 @@ def print_confusion_matrix(dataloader):
     all_labels = []
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
-    model = ChessNet()
+    model = ChessNet(1088, 128, 1)
     model.load_state_dict(torch.load('best_chessnet.pth'))
     model.to(device)
     model.eval()
@@ -121,7 +119,6 @@ def print_confusion_matrix(dataloader):
     conf_matrix = confusion_matrix(all_labels, all_preds)
     # Display the confusion matrix
     TN, FP, FN, TP = conf_matrix.ravel()
-    # Print the confusion matrix in a visually pleasing format
     print("Confusion Matrix:")
     print(f"{'':<12}{'Predicted 0':<15}{'Predicted 1'}")
     print(f"{'True 0':<12}{TN:<15}{FP}")
@@ -130,43 +127,34 @@ def print_confusion_matrix(dataloader):
 
 # Define neural network
 class ChessNet(nn.Module):
-    def __init__(self):
+    def __init__(self, input_size, hidden_size, output_size):
         super(ChessNet, self).__init__()
-        self.conv_layers = nn.Sequential()
-        in_channels = hyperparameters['model']['in_channels']
-        out_channels = hyperparameters['model']['out_channels']
-        num_blocks = hyperparameters['model']['num_blocks']
-        for i in range(num_blocks):
-            self.conv_layers.add_module(f'conv{i+1}', nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1))
-            self.conv_layers.add_module(f'bn{i+1}', nn.BatchNorm2d(out_channels))
-            self.conv_layers.add_module(f'relu{i+1}', nn.ReLU())
-            in_channels = out_channels  # For next block
-
-        # Fully connected layer
-        self.fc = nn.Sequential(
-            nn.Dropout(hyperparameters['model']['dropout_factor']),  # Dropout layer with 50% drop rate
-            nn.Linear(out_channels * 8 * 8, 1)
-        )
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(input_size, hidden_size)  
+        self.relu = nn.ReLU()           
+        self.fc2 = nn.Linear(hidden_size, hidden_size//2)   
+        self.relu2 = nn.ReLU()               
+        self.fc3 = nn.Linear(hidden_size//2, output_size) 
+        self.sigmoid = nn.Sigmoid()
+       
 
     def forward(self, x):
-        x = self.conv_layers(x)
-        x = x.view(x.size(0), -1)  # Flatten
-        x = self.fc(x)
-        x = torch.sigmoid(x)
+        x = self.flatten(x)
+        x = self.fc1(x)
+        x = self.relu(x)
+        x = self.fc2(x)
+        x = self.relu2(x)
+        x = self.fc3(x)
+        x = self.sigmoid(x)
         return x
 
 def train(dataloader, model, loss_fn, optimizer):
     model.train()
     train_loss = 0
-    correct = 0
     for batch_idx, (data, labels) in enumerate(dataloader):
         # Move data to device
         data = data.to(device)
         labels = labels.to(device).float()
-
-        # If data shape is [batch_size, 8, 8, 17], rearrange it to [batch_size, 17, 8, 8]
-        if data.shape[1:] == (8, 8, 17):
-            data = data.permute(0, 3, 1, 2).contiguous()
 
         # Forward pass
         outputs = model(data)
@@ -177,18 +165,13 @@ def train(dataloader, model, loss_fn, optimizer):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-
         train_loss += loss.item()
-        predicted = (outputs > 0.5).float()
-        correct += (predicted == labels).type(torch.float).sum().item()
 
         # Optional: print training progress
         if batch_idx % (10) == 0:
             print(f'Step [{batch_idx}], Loss: {loss.item():.4f}')
     train_loss = train_loss / len(dataloader)
     training_loss.append(train_loss)
-    correct = correct / len(dataloader.dataset)
-    training_accuracy.append(correct)
 
 def test(dataloader, model, loss_fn):
     size = len(dataloader.dataset)
@@ -198,7 +181,6 @@ def test(dataloader, model, loss_fn):
     with torch.no_grad():
         for X, y in dataloader:
             X, y = X.to(device), y.to(device)
-            X = X.permute(0, 3, 1, 2).contiguous()
             y = y.reshape(-1,1).float()
             pred = model(X)
             test_loss += loss_fn(pred, y).item()
@@ -208,10 +190,9 @@ def test(dataloader, model, loss_fn):
             all_labels.extend(y.cpu().numpy())
     print("correct predicitons:", correct)
     print("Total items", size)
-    test_loss /= num_batches
+    test_loss = test_loss / len(dataloader)
     validation_loss.append(test_loss)
     correct /= size
-    validation_accuracy.append(correct)
     print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
     return test_loss
 
@@ -247,7 +228,7 @@ if __name__ == "__main__":
     print(f"Using {device} device")
 
     # Instantiate the model
-    model = ChessNet()
+    model = ChessNet(1088, 128, 1)
 
     model.to(device)
 
@@ -292,17 +273,13 @@ if __name__ == "__main__":
 
     print_confusion_matrix(test_loader)
 
-    # write training and testing loss to a file
-    with open('losses_cnn.txt', 'w') as f:
+   # write training and testing loss to a file
+    with open('losses.txt', 'w') as f:
         f.write("Epoch\tTraining Loss\tTest Loss\n")  # Writing header
         for epoch_num in range(epoch+1):
             f.write(f"{epoch_num + 1}\t{training_loss[epoch_num]:.4f}\t{validation_loss[epoch_num]:.4f}\n")
 
-    # write training and testing accuracy to a file
-    with open('accuracy_cnn.txt', 'w') as f:
-        f.write("Epoch\tTraining Loss\tTest Loss\n")  # Writing header
-        for epoch_num_accurancy in range(epoch+1):
-            f.write(f"{epoch_num + 1}\t{training_accuracy[epoch_num_accurancy]:.4f}\t{validation_accuracy[epoch_num_accurancy]:.4f}\n")
+    
 
 
 
