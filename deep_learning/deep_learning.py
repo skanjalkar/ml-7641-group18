@@ -132,25 +132,42 @@ def print_confusion_matrix(dataloader):
 class ChessNet(nn.Module):
     def __init__(self):
         super(ChessNet, self).__init__()
-        self.conv_layers = nn.Sequential()
+        self.conv_layers = nn.ModuleList()
         in_channels = hyperparameters['model']['in_channels']
         out_channels = hyperparameters['model']['out_channels']
         num_blocks = hyperparameters['model']['num_blocks']
+        
         for i in range(num_blocks):
-            self.conv_layers.add_module(f'conv{i+1}', nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1))
-            self.conv_layers.add_module(f'bn{i+1}', nn.BatchNorm2d(out_channels))
-            self.conv_layers.add_module(f'relu{i+1}', nn.ReLU())
-            in_channels = out_channels  # For next block
+            # Add convolutional block
+            self.conv_layers.append(nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
+                nn.BatchNorm2d(out_channels),
+                nn.ReLU()
+            ))
+            
+            # Add a 1x1 conv layer to match dimensions for residual if needed
+            self.conv_layers.append(
+                nn.Conv2d(in_channels, out_channels, kernel_size=1) if in_channels != out_channels else nn.Identity()
+            )
+            
+            in_channels = out_channels  # Update in_channels for the next block
 
         # Fully connected layer
         self.fc = nn.Sequential(
-            nn.Dropout(hyperparameters['model']['dropout_factor']),  # Dropout layer with 50% drop rate
+            nn.Dropout(hyperparameters['model']['dropout_factor']),
             nn.Linear(out_channels * 8 * 8, 1)
         )
 
     def forward(self, x):
-        x = self.conv_layers(x)
-        x = x.view(x.size(0), -1)  # Flatten
+        residual = x  # Initial residual
+        for i in range(0, len(self.conv_layers), 2):
+            conv_block = self.conv_layers[i]  # Main conv block
+            shortcut_layer = self.conv_layers[i + 1]  # Shortcut for residual matching
+            
+            out = conv_block(residual)  # Apply conv block
+            residual = out + shortcut_layer(residual)  # Add residual connection
+
+        x = residual.view(residual.size(0), -1)  # Flatten
         x = self.fc(x)
         x = torch.sigmoid(x)
         return x
