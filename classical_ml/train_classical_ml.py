@@ -16,6 +16,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import confusion_matrix
+from sklearn.decomposition import PCA
+from sklearn.metrics import roc_curve
 
 # Global variables go here.
 SCRIPT_ARGS = None
@@ -34,6 +36,8 @@ parser.add_argument('--model', type=str, default='rf', help="Use rf for RandomFo
 parser.add_argument('--config', type=str, default='random_forest_config.json', help="Specify hyperparameters to use.")
 parser.add_argument('--grid_search_cv', type=str, default=False, help="Try to find the best hyperparameters by setting the params config.")
 parser.add_argument('--cv', type=str, default=False, help="Set true for 5 fold cross validation")
+parser.add_argument('--pca', type=bool, default=False, help="Set True if you want to reduce dimensions using PCA")
+parser.add_argument('--pca_retain_var', type=float, default=0.95)
 # Parse
 SCRIPT_ARGS = parser.parse_args()
 
@@ -44,6 +48,8 @@ PERFORM_CV = SCRIPT_ARGS.cv
 MODEL = SCRIPT_ARGS.model
 CONFIG = SCRIPT_ARGS.config
 GRID_SEARCH_CV = SCRIPT_ARGS.grid_search_cv
+IS_PCA = SCRIPT_ARGS.pca
+PCA_RETAIN_VAR = SCRIPT_ARGS.pca_retain_var
 print("Elo directories that script will process: %s" % str(DIR_LIST))
 
 
@@ -146,6 +152,12 @@ def get_confusion_matrix(model, X, Y):
     y_pred = model.predict(X)
     return confusion_matrix(Y, y_pred)
 
+def plot_roc_curve(model, X_test, y_test):
+    y_pred_proba = model.predict_proba(X_test)[:,1]
+    fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
+    
+    print("FPR:", fpr)
+    print("TPR:", tpr)
 
 if __name__ == "__main__":
     X_files, Y_files = get_files_to_process()
@@ -192,6 +204,12 @@ if __name__ == "__main__":
     if PERFORM_CV:
         scores = get_cv_score_for_model(X, Y, hyper_config)
         print("CV scores: ", scores)
+    
+    if IS_PCA:
+        pca = PCA(n_components=PCA_RETAIN_VAR)
+        X = pca.fit_transform(X)
+        print("Reduced X shape:", X.shape)
+        print("Retained variance:", PCA_RETAIN_VAR)
 
     # Split the data into train and test(80% train 20% test).
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=3)
@@ -211,3 +229,5 @@ if __name__ == "__main__":
 
     print("Train prediction confusion matrix: \n", get_confusion_matrix(model, X_train, Y_train))
     print("Test prediction confusion matrix: \n", get_confusion_matrix(model, X_test, Y_test))
+
+    print("ROC AUC curve: \n", plot_roc_curve(model, X_test, Y_test))
