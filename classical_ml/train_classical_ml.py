@@ -155,9 +155,9 @@ def get_confusion_matrix(model, X, Y):
 def plot_roc_curve(model, X_test, y_test):
     y_pred_proba = model.predict_proba(X_test)[:,1]
     fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
-    
-    print("FPR:", fpr)
-    print("TPR:", tpr)
+    print("ROC AUC curve: \n")
+    print("FPR:", fpr.tolist())
+    print("TPR:", tpr.tolist())
 
 if __name__ == "__main__":
     X_files, Y_files = get_files_to_process()
@@ -229,5 +229,5 @@ if __name__ == "__main__":
 
     print("Train prediction confusion matrix: \n", get_confusion_matrix(model, X_train, Y_train))
     print("Test prediction confusion matrix: \n", get_confusion_matrix(model, X_test, Y_test))
-
-    print("ROC AUC curve: \n", plot_roc_curve(model, X_test, Y_test))
+    plot_roc_curve(model, X_test, Y_test)
+    
