@@ -8,6 +8,9 @@ model:
   num_blocks: 64
   dropout_factor: 0.4
   num_workers: 4
+  mlp_input: 1088
+  mlp_output: 1
+  mlp_hidden: 128
 
 scheduler:
   patience: 2

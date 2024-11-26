@@ -26,19 +26,19 @@ validation_loss = []
 training_accuracy = []
 validation_accuracy = []
 
-#### Parse the parameters for ML model ####
-###########################################
 # Initialize the parser
 parser = argparse.ArgumentParser(description="Add arguments for training the deep neural network ML model")
 
 # Define named arguments
 parser.add_argument('--data_path', type=str, default="", help="Relative path to data directory")
 parser.add_argument('--elo_list', type=str, default="1600-1700", help="Comma seperated ELO ranges to process.")
+parser.add_argument('--model_type', type=str, default="mlp", help="""Type mlp for simple multi layer neural network or cnn for a convolutional neural network with residual connections""")
 
 SCRIPT_ARGS = parser.parse_args()
 
 DATA_PATH = SCRIPT_ARGS.data_path.split(',')
 DIR_LIST = SCRIPT_ARGS.elo_list.split(',')
+MODEL_TYPE = SCRIPT_ARGS.model_type
 
 def get_files_to_process():
     """
@@ -101,9 +101,13 @@ def print_confusion_matrix(dataloader):
     # run a random test on the dataset to get the predicted and label values
     all_preds = []
     all_labels = []
+    TP_samples, TN_samples, FP_samples, FN_samples = [], [], [], []
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
-    model = ChessNet()
+    if MODEL_TYPE == "mlp":
+        model = ChessNetSimple(hyperparameters['model']['mlp_input'], hyperparameters['model']['mlp_hidden'], hyperparameters['model']['mlp_output'])
+    elif MODEL_TYPE == "cnn":
+        model = ChessNet()
     model.load_state_dict(torch.load('best_chessnet.pth'))
     model.to(device)
     model.eval()
@@ -118,6 +122,16 @@ def print_confusion_matrix(dataloader):
             correct += (predicted == y).type(torch.float).sum().item()
             all_preds.extend(predicted.cpu().numpy())
             all_labels.extend(y.cpu().numpy())
+            for i in range(len(y)):
+                sample = X[i].cpu().numpy()  # Get the sample
+                if y[i].item() == 1 and predicted[i].item() == 1:
+                    TP_samples.append(sample)  # True Positive
+                elif y[i].item() == 0 and predicted[i].item() == 0:
+                    TN_samples.append(sample)  # True Negative
+                elif y[i].item() == 0 and predicted[i].item() == 1:
+                    FP_samples.append(sample)  # False Positive
+                elif y[i].item() == 1 and predicted[i].item() == 0:
+                    FN_samples.append(sample) 
     conf_matrix = confusion_matrix(all_labels, all_preds)
     # Display the confusion matrix
     TN, FP, FN, TP = conf_matrix.ravel()
@@ -126,9 +140,13 @@ def print_confusion_matrix(dataloader):
     print(f"{'':<12}{'Predicted 0':<15}{'Predicted 1'}")
     print(f"{'True 0':<12}{TN:<15}{FP}")
     print(f"{'True 1':<12}{FN:<15}{TP}")
+    np.save('TP_samples.npy', np.array(TP_samples))
+    np.save('TN_samples.npy', np.array(TN_samples))
+    np.save('FP_samples.npy', np.array(FP_samples))
+    np.save('FN_samples.npy', np.array(FN_samples))
 
 
-# Define neural network
+# CNN Neural Network
 class ChessNet(nn.Module):
     def __init__(self):
         super(ChessNet, self).__init__()
@@ -170,6 +188,28 @@ class ChessNet(nn.Module):
         x = residual.view(residual.size(0), -1)  # Flatten
         x = self.fc(x)
         x = torch.sigmoid(x)
+        return x
+
+# A simple Multi Layer Neural Network
+class ChessNetSimple(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(ChessNetSimple, self).__init__()
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(input_size, hidden_size)  
+        self.relu = nn.ReLU()           
+        self.fc2 = nn.Linear(hidden_size, hidden_size//2)   
+        self.relu2 = nn.ReLU()               
+        self.fc3 = nn.Linear(hidden_size//2, output_size) 
+        self.sigmoid = nn.Sigmoid()
+       
+    def forward(self, x):
+        x = self.flatten(x)
+        x = self.fc1(x)
+        x = self.relu(x)
+        x = self.fc2(x)
+        x = self.relu2(x)
+        x = self.fc3(x)
+        x = self.sigmoid(x)
         return x
 
 def train(dataloader, model, loss_fn, optimizer):
@@ -264,7 +304,12 @@ if __name__ == "__main__":
     print(f"Using {device} device")
 
     # Instantiate the model
-    model = ChessNet()
+    if MODEL_TYPE == "mlp":
+        print("selected multi layer neural network !")
+        model = ChessNetSimple(hyperparameters['model']['mlp_input'], hyperparameters['model']['mlp_hidden'], hyperparameters['model']['mlp_output'])
+    elif MODEL_TYPE == "cnn":
+        print("selected convolutional neural network !")
+        model = ChessNet()
 
     model.to(device)
 
