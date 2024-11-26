@@ -121,6 +121,15 @@ Running Logistic Regression:
 python train_classical_ml.py --elo_list=1400-1500,1500-1600,1600-1700,1700-1800,1800-1900,1900-2000 --data_path=data --config=logistic_regression_config.json --model=lgr --cv=True
 ```
 
+## Neural Network
+
+The script deep_learning.py will help us train neural network models on preprocessed .npy files. It processes the data, trains the neural network models, and provides us with training/testing accuracy as well as cross-validation scores for the data. It will also print the confusion matrix for the data processed.
+
+Script Arguments:
+1. ```--data_path``` : Specify the relative path to the directory where yuor chess data is present.
+2. ```--elo_list```: The specified directory would have sub directories corresponding to the ELO ranges. Specify the ELO ranges for which you would like to train classical ml models.
+3. ```--model_type```: Specify the architecture to be used for training the neural network. We have two options ```{'mlp': A multi Layer Neural network, 'cnn': Convolutional Neural Network}```
+
 ## Reference Papers
 
 Reference papers can be found in the `reference-papers` folder.
