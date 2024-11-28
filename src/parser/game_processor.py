@@ -100,11 +100,11 @@ class GameProcessor:
 
             legal_moves_number = board.legal_moves.count()
             turn = float(board.turn)
-
-            if (turn == 0):
-                time_white -= int(clock_time)
-            else:
-                time_black -= int(clock_time)
+            if clock_time is not None:
+                if (turn == 0):
+                    time_white -= int(clock_time)
+                else:
+                    time_black -= int(clock_time)
 
             time_diff = abs(time_white - time_black)
 
@@ -185,8 +185,8 @@ class GameProcessor:
                         eco_number,                                   # 20: ECO number
                     ], dtype=np.float32)
                     # yield features, ground_truth
-                    print("Features : ", features)
-                    print("Is Blunder : ", is_blunder)
+                    # print("Features : ", features)
+                    # print("Is Blunder : ", is_blunder)
 
                     yield_tuple = (features, is_blunder)
 
