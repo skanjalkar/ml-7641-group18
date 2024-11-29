@@ -88,7 +88,7 @@ Once you have the resources, run the following command to parse the pgn files an
 ./parse.sh
 ```
 
-This will ask you the upper limit (inclusive!) on the number of files (should be equal to the number of cpu cores you have on pace) you want to parse.
+This will ask you the upper limit (inclusive!) on the number of files (should be equal to the number of cpu cores you have on pace) you want to parse as well as if you want to use feature extraction rather than giving board.
 
 ## Classical ML Models
 
