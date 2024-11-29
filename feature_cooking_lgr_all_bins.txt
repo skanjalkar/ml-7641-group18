@@ -1,0 +1,18 @@
+Elo directories that script will process: ['1000-1100', '1100-1200', '1200-1300', '1300-1400', '1400-1500', '1500-1600', '1600-1700', '1700-1800', '1800-1900', '1900-2000']
+Compiling data for:  data/bins
+Number of files: 367
+Test first 5 files from X: ['data/bins/1000-1100/X_chunk_844481_14.npy', 'data/bins/1000-1100/X_chunk_518102_4.npy', 'data/bins/1000-1100/X_chunk_377931_2.npy', 'data/bins/1000-1100/X_chunk_846170_12.npy', 'data/bins/1000-1100/X_chunk_70886_20.npy']
+Test first 5 files from Y: ['data/bins/1000-1100/y_chunk_844481_14.npy', 'data/bins/1000-1100/y_chunk_518102_4.npy', 'data/bins/1000-1100/y_chunk_377931_2.npy', 'data/bins/1000-1100/y_chunk_846170_12.npy', 'data/bins/1000-1100/y_chunk_70886_20.npy']
+X shape:  (40359, 21)
+Y shape:  (40359,)
+CV scores:  [0.5314668  0.64705154 0.63701685 0.63478692 0.62173213]
+Shape of X_train:  (32287, 21)
+Shape of X_test:  (8072, 21)
+Training accuracy:  0.6317713011428748
+Test accuracy:  0.6335480673934589
+Train prediction confusion matrix: 
+ [[17970  1578]
+ [10311  2428]]
+Test prediction confusion matrix: 
+ [[4517  406]
+ [2552  597]]

@@ -154,7 +154,13 @@ if __name__ == "__main__":
 
     X, Y = get_numpy_data_from_files(X_files, Y_files)
     N = X.shape[0]
-    X = X.reshape(N, 8*8*17)
+    # X = X.reshape(N, 8*8*17)
+    X = X.reshape(N, 21)
+    mask = ~np.isnan(X).any(axis=1)
+
+    # Apply the mask to both X and Y
+    X = X[mask]
+    Y = Y[mask]
     print("X shape: ", X.shape)
     print("Y shape: ", Y.shape)
     assert X.shape[0] == Y.shape[0], "X and Y sample mismatch"
@@ -177,7 +183,7 @@ if __name__ == "__main__":
                 "penalty": ["l2"],
                 "C": [1.0, 1.5, 2],
                 "solver": ["lbfgs"],
-                "max_iter": [100]
+                "max_iter": [10000]
             }
             model = LogisticRegression()
         else:
