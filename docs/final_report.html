@@ -124,104 +124,348 @@
             <!-- Introduction/Background Section-->
             <div class="section">
                 <h2>Introduction/Background</h2>
-                <!-- Copy content from midterm, add any updates -->
+                <strong>Literature Review</strong>
+                <p>
+                    <ul>
+                    <li>Acher and Esnault (2016) [1] conducted large-scale chess analysis using Stockfish, highlighting the importance of chess engines in understanding human decision-making. Their work identified that computation time of chess engines is a crucial bottleneck in wide-scale interaction between humans and chess engines.</li>
+                    <li>Silver et al. (2017) [2] introduced AlphaZero, an AI that achieved superhuman performance in chess through self-play, combining deep reinforcement learning with Monte Carlo Tree Search. Their work showed deep learning models can be integrated into chess analysis and beat other state-of-the-art methods.</li>
+                    <li>McIlroy-Young et al. (2020) [3] developed Maia, an AI model fine-tuned to mimic human chess play, including mistakes, for more relatable and educational purposes. Theirs was one of the first work to use machine learning methods to understand human chess play.</li>
+                    </ul>
+                </p>
+
+                <strong>Dataset Description:</strong>
+                <p>
+                    A standard Lichess dataset contains chess game information such as player IDs, ratings, game results (win, loss, or draw), time control, and termination reasons (e.g., resignation or checkmate). Each game is identified by a unique ID and includes metadata like the opening name and ECO code, date and time, and the move list in Portable Game Notation (PGN). Some datasets may also include movetimestamps, annotations for notable moves, or "optimal" engine evaluations at certain moves. Optional player metadata, such as titles (GM, IM) may also be available.
+                </p>
+
+                <strong>Dataset Link:</strong>
+                <a
+                    href="https://database.lichess.org/#standard_games"
+                    target="_blank">Link to Dataset</a>
             </div>
 
             <!-- Problem Definition Section (from midterm) -->
             <div class="section">
                 <h2>Problem Definition</h2>
-                <!-- Copy content from midterm, add any updates -->
+                <strong>Problem Statement:</strong>
+                    <p>
+                        Since chess engines achieved superhuman performance, they have been extensively used as analytical tools in human chess play. Current chess tools excel at suggesting the best moves but lack the capability to warn players about the likelihood of making blunders in specific positions. There is a need for a such a specialized chess tool that can assess and communicate the "blunder risk" of any given position, taking into account position complexity and common mistake patterns at different skill levels. This tool would create crucial awareness for players before making critical decisions, helping them approach risky positions with appropriate caution.
+                    </p>
+                    <p>
+                        More formally, we want to develop a model, say \(M\), that can accept a chess position \(p \in P \) and predict a label \( M(p) \in \{0, 1\} \) where 0 indicates that a human player is unlikely to make a blunder in position \(p\) and 1 indicates that a human player is likely to make a blunder in position \(p\). The model \(M\) will be trained on a dataset of chess positions with labels indicating whether a blunder was made in that position or not.
+                    </p>
+
+                    <strong>Motivation:</strong>
+                    <p>
+                        The recent chess boom, accelerated by the pandemic, has highlighted a critical gap in chess tools for casual players. While traditional chess engines focus on finding perfect moves, they don't help players understand when they're in dangerous positions likely to cause blunders. This is because making a blunder is an inherently "human" trait and chess engines are typically tuned to achieve perfect (superhuman) play. Further, Maia [3] shows that artificially restricting superhuman chess engines (like capping the depth in tree-search algorithms) takes the models even farther from human behavior. A blunder prediction system would serve as a crucial learning tool, especially for newer players who often make game-losing mistakes without recognizing the risks. This addresses the growing need for practical learning tools that help prevent catastrophic errors rather than just suggesting optimal moves.
+                    </p>
             </div>
 
             <!-- Methods Section -->
             <div class="section">
                 <h2>Methods</h2>
-                <h3>Data Preprocessing Methods</h3>
-                <!-- Describe your preprocessing methods -->
+                <strong>Data Preprocessing:</strong>
+                We have access to a lot of chess games, but it needs to be systematically converted and labelled into chess positions and blunder labels. The following steps exhaustively detail the data preprocessing pipeline:
+                <ul>
+                    <li>
+                        <b>Download dataset from Lichess and extract PGN:</b> The system downloads large datasets of chess games from Lichess's public database. These datasets contain standard rated chess games played during specific months and are initially compressed to save storage space. The data comes in a special compressed format (.zst) which needs to be unzipped before it can be used. The downloading and unzipping processes happen simultaneously for multiple files to save time, with visual indicators showing the progress of both operations. Once uncompressed, the data becomes available in PGN format, which is the standard format for recording chess games, containing all the moves and relevant game information.
+                    </li>
+                    <li>
+                        <b>Stockfish Engine Integration:</b> To determine what constitutes a blunder, the system leverages Stockfish, one of the strongest chess engines available. For each position, Stockfish evaluates both the current position and the position after a move is made. The difference in these evaluations, measured in centipawns (1/100th of a pawn's value), reveals how much the move weakened the position. If this difference exceeds a certain threshold, the move is classified as a blunder, providing our ground truth for training the model.
+                    </li>
+                    <li>
+                        <b>Position Extraction:</b> Convert PGN data to 8x8x17 grid representations using <code>python-chess</code>. 17 channels are represent the following: Pieces (12): One channel per piece type/color (6 white, 6 black); Castling (4): Legal castling options for both players; Turn (1): Active player indicator (white/black)
+                    </li>
+                    <li>
+                        <b>Feature Extraction:</b> Classical ML algorithms struggle to obtain good representations from raw data. Hence, we manually extract useful features from board states to pass it to ML algorithms. The full list of features includes:
+                        <ul>
+                            <li>Number of legal moves for current player</li>
+                            <li>Time remaining for current player and time delta against opponent</li>
+                            <li>Elo of current player and elo difference against opponent</li>
+                            <li>Mismatch in pieces (knights against bishop)</li>
+                            <li>Number of pieces on the board</li>
+                            <li>Opening type</li>
+                            <li>Whether the queens are on board</li>
+                            <li>Number of pieces attacking the king</li>
+                            <li>Current move number</li>
+                            <li>Time control</li>
+                            <li>Stockfish evaluation</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <b>Data Filtering:</b> We process games where both players are rated 1000-2000 Elo but skip bullet games and moves with insufficient clock time. For each position we evaluate it with Stockfish before and after move and mark it as blunder if eval difference > 3 centipawns. To ensure roughly equal blunders and non-blunders, we sample blunders with 1/4 probability and non-blunders with 1/32 probability. Thus the output is board state (8x8x17), extracted features, and blunder label (0/1), and player Elo (a single number measuring the strength of a player). This creates a balanced dataset of ~2.8M blunders and ~4.2M non-blunders.
+                    </li>
+                </ul>
 
-                <h3>Machine Learning Models</h3>
-                <ol>
+                <strong>Machine Learning Models</strong>
+                <ul>
                     <li>
-                        <strong>Logistic Regression</strong>
+                        <strong>PCA</strong>
                         <p>
-                            Description of implementation and why it was
-                            chosen...
+                            As noted above, the input dimension of raw board data is 8x8x17, which is quite high. Therefore, we use PCA to reduce the dimensionality of the data. We retain 95% of the variance in the data, which experimentally results in a reduced dimensionality of .... We implement PCA using <code>sklearn</code> library.
                         </p>
                     </li>
                     <li>
-                        <strong>Random Forest</strong>
+                        <strong>Classical ML</strong>
                         <p>
-                            Description of implementation and why it was
-                            chosen...
+                            We experiment with various classical machine learning algorithms, namely Random Forest and Logistic Regression. We tried SVM but given the size of the dataset, it was computationally expensive. We train our models on the raw board state, extracted features, and PCA-transformed data. We perform hyperparameter tuning on all models and obtain hyperparameters that give best results on the test set. <code>sklearn</code> library is used for implementation.
                         </p>
                     </li>
                     <li>
-                        <strong>Neural Network</strong>
+                        <strong>Deep Learning</strong>
                         <p>
-                            Description of implementation and why it was
-                            chosen...
+                            We experiment with two deep learning models, Fully Connected Network (FCN) and Residual Convolutional Neural Network (R-CNN) emulating Maia [3]. FCN has 2 hidden layers with 128 and 64 units respectively. R-CNN has 64 convolutional layers with residual connections and 1 fully connected layer at the end. We train these models only on raw board state data because deep learning models typically work well when given raw data. We use <code>PyTorch</code> for implementation.
                         </p>
                     </li>
-                    <li>
-                        <strong>PCA (Unsupervised Learning)</strong>
-                        <p>
-                            Description of implementation and dimensionality
-                            reduction...
-                        </p>
-                    </li>
-                </ol>
+                </ul>
             </div>
 
             <!-- Results and Discussion Section -->
             <div class="section">
                 <h2>Results and Discussion</h2>
 
-                <h3>Visualizations</h3>
-                <!-- Add your visualizations here -->
+                <strong>Visualizations</strong>
+                <p>We will visualise a few chess positions from our dataset and show our best model's prediction for those. We will also show feature importance for classical ML models trained on extracted features. This will help us understand which features are most important in predicting blunders. Finally, we also include ROC curve for our best classical ML model.</p>
 
-                <h3>Quantitative Metrics</h3>
-                <!-- Add tables/charts of metrics -->
+                <strong>Quantitative Metrics</strong>
+                <p>After fitting each model, we evaluate them for accuracy on a held out test set. We run two experiments - one where we train the model on the entire dataset (1000-2000 Elo) and another where we train the model on a subset of the dataset (1600-1700 Elo). The purpose of this experiment is to understand whether there is a significant distribution shift of blunders as Elo changes. We also compare our results with Maia [3] to understand how well our model performs.</p>
 
-                <h3>Model Comparisons</h3>
+                <strong>Model Comparisons</strong>
                 <table>
                     <tr>
                         <th>Model</th>
-                        <th>Accuracy</th>
-                        <th>Precision</th>
-                        <th>Recall</th>
-                        <th>F1-Score</th>
+                        <th>1000-2000 Elo</th>
+                        <th>1600-1700 Elo</th>
                     </tr>
-                    <!-- Add rows for each model -->
+                    <tr>
+                        <td>Logistic Regression with Raw Board State</td>
+                        <td>66.3%</td>
+                        <td>66.8%</td>
+                    </tr>
+                    <tr>
+                        <td>Random Forest with Raw Board State</td>
+                        <td>61.9%</td>
+                        <td>63.9%</td>
+                    </tr>
+                    <tr>
+                        <td>Logistic Regression with PCA</td>
+                        <td>62.7%</td>
+                        <td>64.1%</td>
+                    </tr>
+                    <tr>
+                        <td>Random Forest with PCA</td>
+                        <td>61.8%</td>
+                        <td>64.0%</td>
+                    </tr>
+                    <tr>
+                        <td>Logistic Regression with Extracted Features</td>
+                        <td>63.5%</td>
+                        <td>64.2%</td>
+                    </tr>
+                    <tr>
+                        <td>Random Forest with Extracted Features</td>
+                        <td>68.3%</td>
+                        <td>68.0%</td>
+                    </tr>
+                    <tr>
+                        <td>FCN</td>
+                        <td>67.6%</td>
+                        <td>---</td>
+                    </tr>
+                    <tr>
+                        <td>R-CNN</td>
+                        <td>66.5%</td>
+                        <td>---</td>
+                    </tr>
+                    <tr>
+                        <td>Maia (Random Forest)</td>
+                        <td>56.4%</td>
+                        <td>---</td>
+                    </tr>
+                    <tr>
+                        <td>Maia (R-CNN)</td>
+                        <td>67.7%</td>
+                        <td>---</td>
+                    </tr>
                 </table>
+                <p class="caption">Accuracy of models when trained on data from two ELO range: 1000-2000 and 1600-1700</p>
 
-                <h3>Analysis</h3>
-                <!-- Discuss strengths and weaknesses of each approach -->
+                <table>
+                    <tr>
+                        <td colspan="2" rowspan="2">Confusion Matrix</td>
+                        <td colspan="2">Predicted</td>
+                    </tr>
+                    <tr>
+                        <td>0</td>
+                        <td>1</td>
+                    <tr>
+                        <td rowspan="2">Actual</td>
+                        <td>0</td>
+                        <td>TN = 4936</td>
+                        <td>FP = 583</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>FN = 2289</td>
+                        <td>TP = 1255</td>
+                    </tr>
+                </table>
+                <p class="caption">Confusion Matrix on test data across all ELO for Random Forest with Feature Extraction (Best Model)</p>
 
-                <h3>Next Steps</h3>
-                <!-- Future improvements and research directions -->
+                <strong>Analysis</strong>
+                <p>
+                    Based on the quantitative results in the table, all our models achieve good performance compared to Maia baselines. Specifically, random forest with extracted features performs the best on the entire dataset. This is expected because extracted features are designed to capture human-like behavior. However, the performance of deep learning models is also quite good, indicating that raw board state data is sufficient for predicting blunders.
+
+                    Further, the model performs slightly better when trained on the smaller dataset. This is to be expected as the variations in blunders are less pronounced in the smaller dataset. Players of similar strength tend to perform the same kind of blunders, which makes it easier for the model to learn the patterns.
+                </p>
+
+                <div class="gallery">
+                    <!-- Group 1 -->
+                    <div class="group">
+                        <div class="image-row">
+                            <div>
+                                <img src="images/non_blunder_before.jpeg" alt="non_blunder_before">
+                                <p class="caption">Before Move</p>
+                            </div>
+                            <div>
+                                <img src="images/non_blunder_after.jpeg" alt="non_blunder_after">
+                                <p class="caption">After Move</p>
+                            </div>
+                        </div>
+                        <p class="caption">Non-Blunder Position</p>
+                    </div>
+                
+                    <!-- Group 2 -->
+                    <div class="group">
+                        <div class="image-row">
+                            <div>
+                                <img src="images/blunder_before.jpeg" alt="blunder_before">
+                                <p class="caption">Before Move</p>
+                            </div>
+                            <div>
+                                <img src="images/blunder_after.jpeg" alt="blunder_after">
+                                <p class="caption">After Move</p>
+                            </div>
+                        </div>
+                        <p class="caption">Blunder Position</p>
+                    </div>
+                </div>
+                <p>
+                    The visualizations above show the board positions before and after a move for a non-blunder and a blunder position. The non-blunder position is during a drawn-out endgame where the best moves are quite obvious (shuffling the king side-by-side). Here a human is quite unlikely to make a blunder. The blunder position is from a middle game where the best move (Kc3) is not so obvious. Weaker Elo humans are prone to make blunders here. Our best model is able to label each position correctly.
+                </p>
+
+                <div class="group" style="width: 100%;">
+                    <div class="image-row">
+                        <div>
+                            <img src="images/feature_importance.jpeg" alt="feature_importance">
+                            <p class="caption">Feature Importance for Random Forest with Extracted Features (Best Model)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p>The above plot shows the importance of extracted features in the trained Random Forest model. Empirically, the model puts a lot of weightage to the stockfish evaluation of a position to determine blunder probability.</p>
+
+                <div class="group" style="width: 100%;">
+                    <div class="image-row">
+                        <div>
+                            <img src="images/accuracy_epochs.png" alt="accuracy_epochs">
+                            <p class="caption">Accuracy trends during R-CNN training</p>
+                        </div>
+                        <div>
+                            <img src="images/loss_epochs.png" alt="loss_epochs">
+                            <p class="caption">Loss trends during R-CNN training</p>
+                        </div>
+                    </div>
+                    <p class="caption">Training trends for R-CNN model</p>
+                </div>
+
+                <p>
+                    The training trends for the R-CNN model show that the model converges after 10 epochs. The accuracy increases and the loss decreases with each epoch. This indicates that the model is learning the patterns in the data and is able to predict blunders effectively.
+                </p>
+
+                <strong>Next Steps</strong>
+                <p>In this project, we created a model that predicts whether a human player is likely to make a blunder in a given chess position. Our models achieved good accuracy when compared to baselines, but there is still room for improvement. Some potential next steps include:
+                <ul>
+                    <li>Collecting more data: Our dataset was limited to players with Elo ratings between 1000 and 2000. Even within this range, we were only able to process a subset due to computational limitations. Future work can work on large amounts on data and train larger models.</li>
+                    <li>Human evaluation: Our work essentially tries to mimic human behavior. Therefore, it is natural to conduct surveys on diverse populations to gauge our model's performance.</li>
+                </ul></p>
             </div>
 
             <!-- References Section -->
             <div class="section">
                 <h2>References</h2>
-                <!-- Update references as needed -->
+                <ol>
+                    <li>
+                        Acher, Mathieu, and Gilles Esnault. "Large-scale
+                        Analysis of Chess Games with Chess Engines: A
+                        Preliminary Report." arXiv preprint arXiv:1607.04186
+                        (2016).
+                    </li>
+                    <li>
+                        Silver, David, et al. "Mastering Chess and Shogi by
+                        Self-Play with a General Reinforcement Learning
+                        Algorithm." arXiv preprint arXiv:1712.01815 (2017).
+                    </li>
+                    <li>
+                        McIlroy-Young, Reid, et al. "Aligning Superhuman AI with Human Behavior:
+                        Chess as a Model System." arXiv preprint
+                        arXiv:2006.01855v3 (2020).
+                    </li>
+                    <li>
+                        Silver, David, et al. "Mastering the game of Go with
+                        deep neural networks and tree search." nature 529.7587
+                        (2016): 484-489.
+                    </li>
+                    <li>
+                        Pgn-extract
+                        [https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/],
+                        which can be processed in parallel.
+                    </li>
+                </ol>
             </div>
 
             <!-- Gantt Chart Section -->
             <div class="section">
-                <h2>Project Timeline</h2>
-                <!-- Add updated Gantt chart -->
+                <h2>Gantt Chart</h2>
+                <a
+                    href="https://docs.google.com/spreadsheets/d/1zG6DFRxL2044DozPC6cnIJAXOoCAfsPN/edit?usp=sharing&ouid=114477242680574182935&rtpof=true&sd=true"
+                >
+                    Gantt Chart Link
+                </a>
             </div>
 
             <!-- Contribution Table Section -->
             <div class="section">
-                <h2>Final Contribution Table</h2>
+                <h2>Contribution Table</h2>
                 <table>
-                    <tr>
-                        <th>Name</th>
-                        <th>Final Contributions</th>
-                    </tr>
-                    <!-- Add rows for each team member -->
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Proposal Contributions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Shreyas Kanjalkar</td>
+                            <td>Data Preprocessing, Meetings, Code Review</td>
+                        </tr>
+                        <tr>
+                            <td>Harshil Vagadia</td>
+                            <td>Result Analysis, Report, Code Review, Meetings</td>
+                        </tr>
+                        <tr>
+                            <td>Miloni Mittal</td>
+                            <td>PCA, Report, Meetings</td>
+                        </tr>
+                        <tr>
+                            <td>Jineet Hemalkumar Desai</td>
+                            <td>Classical ML Algorithms, Meetings</td>
+                        </tr>
+                        <tr>
+                            <td>Lohith Kariyapla Siddalingappa</td>
+                            <td>Deep Learning Algorithms, Meetings</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </main>
