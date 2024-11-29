@@ -10,8 +10,7 @@ base_url = "https://database.lichess.org/standard/"
 
 # Updated list of files to match the ones you have
 files = [
-    "lichess_db_standard_rated_2024-08.pgn.zst",
-    "lichess_db_standard_rated_2024-07.pgn.zst",
+    "lichess_db_standard_rated_2024-02.pgn.zst"
 ]
 
 # files = [

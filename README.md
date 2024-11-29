@@ -88,7 +88,7 @@ Once you have the resources, run the following command to parse the pgn files an
 ./parse.sh
 ```
 
-This will ask you the upper limit (inclusive!) on the number of files (should be equal to the number of cpu cores you have on pace) you want to parse.
+This will ask you the upper limit (inclusive!) on the number of files (should be equal to the number of cpu cores you have on pace) you want to parse as well as if you want to use feature extraction rather than giving board.
 
 ## Classical ML Models
 
@@ -106,7 +106,7 @@ Script Arguments:
 
 Running Random Forest classifier:
 ```
-python train_classical_ml.py --elo_list=1400-1500,1500-1600,1600-1700,1700-1800,1800-1900,1900-2000 --data_path=data --config=random_forest_config.json
+python3 train_classical_ml.py --elo_list=1400-1500,1500-1600,1600-1700,1700-1800,1800-1900,1900-2000 --data_path=./data/bins --config=./classical_ml/random_forest_config.json
 ```
 If you want to use PCA for dimensionality reduction:
 ```
@@ -114,11 +114,15 @@ python train_classical_ml.py --elo_list=1400-1500,1500-1600,1600-1700,1700-1800,
 ```
 Running Random Forest classifier with cross-validation:
 ```
-python train_classical_ml.py --elo_list=1400-1500,1500-1600,1600-1700,1700-1800,1800-1900,1900-2000 --data_path=data --config=random_forest_config.json --cv=True
+python3 train_classical_ml.py --elo_list=1400-1500,1500-1600,1600-1700,1700-1800,1800-1900,1900-2000 --data_path=./data/bins --config=./classical_ml/random_forest_config.json --cv=True
 ```
 Running Logistic Regression:
 ```
-python train_classical_ml.py --elo_list=1400-1500,1500-1600,1600-1700,1700-1800,1800-1900,1900-2000 --data_path=data --config=logistic_regression_config.json --model=lgr --cv=True
+python3 train_classical_ml.py --elo_list=1400-1500,1500-1600,1600-1700,1700-1800,1800-1900,1900-2000 --data_path=data/bins --config=./classical_ml/logistic_regression_config.json --model=lgr --cv=True
+```
+Running Support Vector Machine:
+```
+python3 ./classical_ml/train_classical_ml.py --elo_list=1000-1100,1100-1200,1200-1300,1300-1400,1400-1500,1500-1600,1600-1700,1700-1800,1800-1900,1900-2000 --data_path=data/bins --config=./classical_ml/svc_config.json --model=svc
 ```
 
 ## Neural Network
