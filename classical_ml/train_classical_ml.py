@@ -34,6 +34,7 @@ parser.add_argument('--model', type=str, default='rf', help="Use rf for RandomFo
 parser.add_argument('--config', type=str, default='random_forest_config.json', help="Specify hyperparameters to use.")
 parser.add_argument('--grid_search_cv', type=str, default=False, help="Try to find the best hyperparameters by setting the params config.")
 parser.add_argument('--cv', type=str, default=False, help="Set true for 5 fold cross validation")
+parser.add_argument("--feature", type=bool, default=False, help="Set true to use feature extraction")
 # Parse
 SCRIPT_ARGS = parser.parse_args()
 
@@ -44,6 +45,7 @@ PERFORM_CV = SCRIPT_ARGS.cv
 MODEL = SCRIPT_ARGS.model
 CONFIG = SCRIPT_ARGS.config
 GRID_SEARCH_CV = SCRIPT_ARGS.grid_search_cv
+FEATURE = SCRIPT_ARGS.feature
 print("Elo directories that script will process: %s" % str(DIR_LIST))
 
 
@@ -152,10 +154,13 @@ if __name__ == "__main__":
     print("Test first 5 files from X: %s" % str(X_files[:5]))
     print("Test first 5 files from Y: %s" % str(Y_files[:5]))
 
+
     X, Y = get_numpy_data_from_files(X_files, Y_files)
     N = X.shape[0]
-    # X = X.reshape(N, 8*8*17)
-    X = X.reshape(N, 21)
+    if (FEATURE):
+        X = X.reshape(N, 21)
+    else:
+        X = X.reshape(N, 8*8*17)
     mask = ~np.isnan(X).any(axis=1)
 
     # Apply the mask to both X and Y

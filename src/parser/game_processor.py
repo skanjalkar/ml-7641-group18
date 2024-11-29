@@ -18,6 +18,7 @@ class GameProcessor:
         self.pgn_file = pgn_file
         self.stockfish = self.stockfish_initialize(stockfish_path=stockfish_path)
         self.game_count = 0
+        self.feature = False
 
 
     def eco_to_number(self, eco: str) -> int:
@@ -70,9 +71,67 @@ class GameProcessor:
                     print("Skipping bullet game")
                     continue
 
-                yield from self.process_game(game)
+                if (self.feature):
+                    yield from self.process_game_feature(game)
+                else:
+                    yield from self.process_game(game)
 
     def process_game(self, game: chess.pgn.Game) -> Iterator[tuple]:
+
+            board = game.board()
+            self.game_count += 1
+            print("Game count : ", self.game_count, "  Processing game....")
+            # print("Game Headers" , game.headers)
+            move_count = 0
+            current_position_blunders = 0
+
+            for node in game.mainline():
+                move = node.move
+                comment = node.comment
+                clock_time = get_clock_time(comment)
+
+                if (move_count >= MIN_MOVES and
+                    clock_time is not None and
+                    clock_time >= MIN_CLOCK_TIME):
+
+                    # Get evaluation before move
+                    self.stockfish.set_fen_position(board.fen())
+                    eval_before = self.stockfish.get_evaluation()
+
+                    # Make the move and get evaluation after
+                    board.push(move)
+                    self.stockfish.set_fen_position(board.fen())
+                    eval_after = self.stockfish.get_evaluation()
+
+
+                    # Calculate evaluation difference
+                    eval_diff = abs(self.get_eval_value(eval_after) - self.get_eval_value(eval_before))
+                    is_blunder = eval_diff >= BLUNDER_THRESHOLD
+
+                    # Adjust sampling probability based on whether it's a blunder
+                    should_sample = (
+                        np.random.random() < MOVE_SELECTION_PROBABILITY or
+                        (is_blunder and np.random.random() < BLUNDER_PROBABILITY)
+                    )
+
+                    if should_sample:
+                        elo = game.headers["WhiteElo"] if move_count % 2 == 0 else game.headers["BlackElo"]
+                        # if (is_blunder):
+                        #     print("Yielding move that is a blunder")
+                        # else:
+                        #     print("Yielding move that is not a blunder")
+                        board_array = create_8x8x17_board(board)
+                        ground_truth = is_blunder
+                        current_position_blunders = 1 if is_blunder else 0
+
+                        # yield board_array, ground_truth, and elo
+                        yield_tuple = (board_array, ground_truth, int(elo), current_position_blunders)
+                        yield yield_tuple
+                else:
+                    board.push(move)
+                move_count += 1
+
+    def process_game_feature(self, game: chess.pgn.Game) -> Iterator[tuple]:
 
         board = game.board()
         self.game_count += 1
@@ -188,6 +247,7 @@ class GameProcessor:
                     # print("Features : ", features)
                     # print("Is Blunder : ", is_blunder)
 
+                    print("Len feature: ", len(features))
                     yield_tuple = (features, is_blunder)
 
                     yield yield_tuple
