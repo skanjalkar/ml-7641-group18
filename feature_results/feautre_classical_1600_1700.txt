@@ -1,0 +1,5 @@
+Elo directories that script will process: ['1600-1700']
+Compiling data for:  ./data/bins
+Number of files: 101
+Test first 5 files from X: ['./data/bins/1600-1700/X_chunk_332108_3.npy', './data/bins/1600-1700/X_chunk_116711_3.npy', './data/bins/1600-1700/X_chunk_868900_24.npy', './data/bins/1600-1700/X_chunk_78413_12.npy', './data/bins/1600-1700/X_chunk_185607_28.npy']
+Test first 5 files from Y: ['./data/bins/1600-1700/y_chunk_332108_3.npy', './data/bins/1600-1700/y_chunk_116711_3.npy', './data/bins/1600-1700/y_chunk_868900_24.npy', './data/bins/1600-1700/y_chunk_78413_12.npy', './data/bins/1600-1700/y_chunk_185607_28.npy']
