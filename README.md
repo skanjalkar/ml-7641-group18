@@ -101,10 +101,16 @@ Script Arguments:
 4. ```--config```: Specify the hyperparameter config json file to use for the model. We have already given some example json config files to work with
 5. ```--grid_search_cv```: Set this parameter to true if you are looking to find optimal hyperparameters for your ML model. You might need to change the param_grid variable inside the script.
 6. ```--cv```: Set this to true if you want 5 fold cross validation scores for the data that you want to process.
+7. ```--pca```: Set this is to true if you want to use PCA for dimensionality reduction.
+8. ```--pca_retain_var```: Set the value to how much variance you want to retain while performing PCA. Deafult is 0.95.
 
 Running Random Forest classifier:
 ```
 python3 train_classical_ml.py --elo_list=1400-1500,1500-1600,1600-1700,1700-1800,1800-1900,1900-2000 --data_path=./data/bins --config=./classical_ml/random_forest_config.json
+```
+If you want to use PCA for dimensionality reduction:
+```
+python train_classical_ml.py --elo_list=1400-1500,1500-1600,1600-1700,1700-1800,1800-1900,1900-2000 --data_path=data --config=random_forest_config.json --pca=True
 ```
 Running Random Forest classifier with cross-validation:
 ```
@@ -118,6 +124,16 @@ Running Support Vector Machine:
 ```
 python3 ./classical_ml/train_classical_ml.py --elo_list=1000-1100,1100-1200,1200-1300,1300-1400,1400-1500,1500-1600,1600-1700,1700-1800,1800-1900,1900-2000 --data_path=data/bins --config=./classical_ml/svc_config.json --model=svc
 ```
+
+## Neural Network
+
+The script deep_learning.py will help us train neural network models on preprocessed .npy files. It processes the data, trains the neural network models, and provides us with training/testing accuracy as well as cross-validation scores for the data. It will also print the confusion matrix for the data processed.
+
+Script Arguments:
+1. ```--data_path``` : Specify the relative path to the directory where yuor chess data is present.
+2. ```--elo_list```: The specified directory would have sub directories corresponding to the ELO ranges. Specify the ELO ranges for which you would like to train classical ml models.
+3. ```--model_type```: Specify the architecture to be used for training the neural network. We have two options ```{'mlp': A multi Layer Neural network, 'cnn': Convolutional Neural Network}```
+
 ## Reference Papers
 
 Reference papers can be found in the `reference-papers` folder.

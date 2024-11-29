@@ -1,0 +1,56 @@
+Random Forest with PCA (1600-1700)
+Training accuracy:  0.7366840683411215
+Test accuracy:  0.6398583528037384
+Train prediction confusion matrix: [[69913    67] [28784 10804]]
+Test prediction confusion matrix: [[17374    73] [ 9792   153]]
+
+
+
+Random Forest (1600-1700)
+Training accuracy:  0.6425598714953271
+Test accuracy:  0.6389821845794392
+Train prediction confusion matrix: [[69972     8] [39156   432]]
+Test prediction confusion matrix: [[17436    11] [ 9878    67]]
+
+
+
+Random Forest (1000-2000)
+Training accuracy:  0.6210606292699365
+Test accuracy:  0.6189934659104834
+Train prediction confusion matrix: [[501709    527] [308697   5092]]
+Test prediction confusion matrix: [[125107    252] [ 77476   1172]]
+
+
+Random Forest with PCA (1000-2000)
+Training accuracy: 0.6429496645323366
+Test accuracy: 0.6183023131559211
+Train prediction confusion matrix: [[497346 4890] [286472 27317]]
+Test prediction confusion matrix: [[123699 1660] [ 76209 2439]]
+
+
+Logistic Regression (1600-1700)
+Training accuracy: 0.6807462032710281
+Test accuracy: 0.6682608060747663
+Train prediction confusion matrix: [[60967 9013] [25967 13621]]
+Test prediction confusion matrix: [[14996 2451] [ 6636 3309]]
+
+
+Logistic Regression with PCA (1600-1700)
+Training accuracy: 0.6460189106308412
+Test accuracy: 0.641501168224299
+Train prediction confusion matrix: [[64247 5733] [33052 6536]]
+Test prediction confusion matrix: [[15997 1450] [ 8370 1575]]
+
+
+Logistic Regression (1000-2000)
+Training accuracy: 0.6638656903893876
+Test accuracy: 0.6633203762615989
+Train prediction confusion matrix: [[424732 77504] [196790 116999]]
+Test prediction confusion matrix: [[105893 19466] [ 49219 29429]]
+
+
+Logistic Regression with PCA (1000-2000)
+Training accuracy: 0.6267920713213443
+Test accuracy: 0.6276647369943188
+Train prediction confusion matrix: [[445626 56610] [247937 65852]]
+Test prediction confusion matrix: [[111331 14028] [ 61931 16717]]
