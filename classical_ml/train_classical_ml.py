@@ -5,6 +5,7 @@ import os
 import argparse
 import json
 import sys
+import matplotlib.pyplot as plt
 
 # ML model related imports.
 from sklearn.ensemble import RandomForestClassifier
@@ -18,6 +19,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import confusion_matrix
 from sklearn.decomposition import PCA
 from sklearn.metrics import roc_curve
+from datetime import datetime
 
 # Global variables go here.
 SCRIPT_ARGS = None
@@ -113,6 +115,79 @@ def analyze_feature_importance(model, feature_names=None):
     print(feature_importance_df.head(10))
 
     return feature_importance_df
+
+def plot_feature_importance(model, output_dir="results"):
+    """
+    Plot and save feature importance visualization
+    """
+    if not hasattr(model, 'feature_importances_'):
+        print("This model doesn't support feature importance analysis")
+        return
+
+    if not isinstance(output_dir, str):
+            output_dir = "results"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Define your feature names
+    feature_names = [
+        'Legal Moves',          # 0
+        'Clock Time',           # 1
+        'Time Difference',      # 2
+        'Current ELO',         # 3
+        'ELO Difference',      # 4
+        'Piece Mismatch',      # 5
+        'Total Pieces',        # 6
+        'Queens on Board',     # 7
+        'Move Count',          # 8
+        'Increment',           # 9
+        'Evaluation',          # 10
+        'Turn',                # 11
+        'Pawn Mismatch',       # 12
+        'Knight Mismatch',     # 13
+        'Bishop Mismatch',     # 14
+        'Rook Mismatch',       # 15
+        'Queen Mismatch',      # 16
+        'Bishop vs Knight',    # 17
+        'Rook vs Minor',       # 18
+        'Queen vs Rooks',      # 19
+        'ECO Number'           # 20
+    ]
+
+    # Create DataFrame of features and their importance scores
+    feature_importance = pd.DataFrame({
+        'Feature': feature_names,
+        'Importance': model.feature_importances_
+    })
+
+    # Sort by importance
+    feature_importance = feature_importance.sort_values('Importance', ascending=False)
+
+    # Save to CSV
+    csv_path = os.path.join(output_dir, 'feature_importance.csv')
+    feature_importance.to_csv(csv_path, index=False)
+    print(f"Feature importance saved to: {csv_path}")
+
+    # Plot
+    plt.figure(figsize=(12, 6))
+    plt.bar(range(len(feature_importance)), feature_importance['Importance'])
+    plt.xticks(range(len(feature_importance)), feature_importance['Feature'], rotation=45, ha='right')
+    plt.xlabel('Features')
+    plt.ylabel('Importance')
+    plt.title('Feature Importance')
+    plt.tight_layout()
+
+    # Save plot
+    plot_path = os.path.join(output_dir, 'feature_importance.png')
+    plt.savefig(plot_path)
+    plt.close()
+    print(f"Feature importance plot saved to: {plot_path}")
+
+    # Print top features
+    print("\nTop 10 Most Important Features:")
+    print(feature_importance.head(10))
+
+    return feature_importance
 
 def get_numpy_data_from_files(X_files, Y_files):
     """
@@ -285,7 +360,7 @@ if __name__ == "__main__":
                 'Queen vs Rooks',      # 19
                 'ECO Number'           # 20
             ]
-            feature_importance_df = analyze_feature_importance(model, feature_names)
+            feature_importance_df = plot_feature_importance(model, feature_names)
     elif MODEL == 'lgr':
         model = train_logistic_regression(X_train, Y_train, hyper_config)
     elif MODEL == 'svc':
