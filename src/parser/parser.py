@@ -95,7 +95,7 @@ def main():
 
 
     else:
-        for X, y, elo, blunder_count in processor.process_games(feature):
+        for X, y, elo, blunder_count in processor.process_games():
             bin_name = get_bin(elo)
             if bin_name:
                 X_buffers[bin_name].append(X)

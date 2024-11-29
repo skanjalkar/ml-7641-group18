@@ -82,6 +82,38 @@ def get_files_to_process():
         print("Number of files:", total_files)
     return X_files, Y_files
 
+def analyze_feature_importance(model, feature_names=None):
+    """
+    Analyze and display feature importance for the model
+    """
+    if not hasattr(model, 'feature_importances_'):
+        print("This model doesn't support feature importance analysis")
+        return
+
+    importances = model.feature_importances_
+
+    # Create feature names if not provided
+    if feature_names is None:
+        if FEATURE:
+            feature_names = [f'Feature_{i}' for i in range(21)]
+        else:
+            feature_names = [f'Position_{i}' for i in range(8*8*17)]
+
+    # Create DataFrame with feature names and importance scores
+    feature_importance_df = pd.DataFrame({
+        'Feature': feature_names,
+        'Importance': importances
+    })
+
+    # Sort by importance in descending order
+    feature_importance_df = feature_importance_df.sort_values('Importance', ascending=False)
+
+    # Print top 10 features
+    print("\nTop 10 Most Important Features:")
+    print(feature_importance_df.head(10))
+
+    return feature_importance_df
+
 def get_numpy_data_from_files(X_files, Y_files):
     """
     Helper method to fetch data in numpy array form
@@ -215,7 +247,7 @@ if __name__ == "__main__":
     if PERFORM_CV:
         scores = get_cv_score_for_model(X, Y, hyper_config)
         print("CV scores: ", scores)
-    
+
     if IS_PCA:
         pca = PCA(n_components=PCA_RETAIN_VAR)
         X = pca.fit_transform(X)
@@ -229,6 +261,31 @@ if __name__ == "__main__":
 
     if MODEL == 'rf':
         model = train_random_forest(X_train, Y_train, hyper_config)
+        if FEATURE:
+            feature_names = [
+                'Legal Moves',          # 0
+                'Clock Time',           # 1
+                'Time Difference',      # 2
+                'Current ELO',         # 3
+                'ELO Difference',      # 4
+                'Piece Mismatch',      # 5
+                'Total Pieces',        # 6
+                'Queens on Board',     # 7
+                'Move Count',          # 8
+                'Time Increment',      # 9
+                'Evaluation',          # 10
+                'Turn',                # 11
+                'Pawn Mismatch',       # 12
+                'Knight Mismatch',     # 13
+                'Bishop Mismatch',     # 14
+                'Rook Mismatch',       # 15
+                'Queen Mismatch',      # 16
+                'Bishop vs Knight',    # 17
+                'Rook vs Minor',       # 18
+                'Queen vs Rooks',      # 19
+                'ECO Number'           # 20
+            ]
+            feature_importance_df = analyze_feature_importance(model, feature_names)
     elif MODEL == 'lgr':
         model = train_logistic_regression(X_train, Y_train, hyper_config)
     elif MODEL == 'svc':
@@ -242,4 +299,3 @@ if __name__ == "__main__":
     print("Test prediction confusion matrix: \n", get_confusion_matrix(model, X_test, Y_test))
 
     plot_roc_curve(model, X_test, Y_test)
-    
