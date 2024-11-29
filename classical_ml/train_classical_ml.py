@@ -188,7 +188,7 @@ if __name__ == "__main__":
                 "penalty": ["l2"],
                 "C": [1.0, 1.5, 2],
                 "solver": ["lbfgs"],
-                "max_iter": [10000]
+                "max_iter": [100]
             }
             model = LogisticRegression()
         else:
